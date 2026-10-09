@@ -119,8 +119,8 @@
   body {
     background-color: var(--color-light-bg);
     color: var(--color-light-text-primary);
-    /* System stack until .fonts-active. The token stack names Anuphan, which matches
-       the next/font @font-face and would download the woff2 during LCP. No-JS keeps the web face. */
+    /* System stack until .fonts-active. Naming Anuphan here matches the next/font
+       @font-face, so the woff2 download restyles and relayouts the whole document. */
     font-family: "Anuphan Fallback", "Leelawadee UI", "Thonburi", "Tahoma", system-ui, sans-serif;
     font-size: var(--font-size-md);
     line-height: var(--font-line-height-body-th);

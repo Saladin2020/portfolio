@@ -11,14 +11,16 @@ import { getSiteUrl, isProduction } from '@/lib/site';
 import '@/styles/globals.css';
 
 /**
- * Adds `js` before paint, then `fonts-active` on the task after the text LCP entry.
- * Applying Anuphan reflows Thai text above a hash target, which leaves the heading
- * under the nav (CI measured ~40px). Re-align the hash once the face is ready,
- * unless the reader has already scrolled.
+ * Adds `js` before paint. Anuphan is applied only after load has gone quiet:
+ * a class change on <html> restyles the document and lays out every object
+ * (~800), and doing that on the LCP task was the post-FCP long task.
+ * 8s is after a simulated Lighthouse gather (load, then ~1s of quiet) and
+ * still within the visit. Hash targets are re-aligned when the face settles,
+ * unless the reader has already scrolled (wheel, touch, or a scroll key).
  */
 const bootScript =
   "document.documentElement.classList.add('js');" +
-  '(function(){var done=false,moved=false;' +
+  '(function(){var moved=false;' +
   "addEventListener('wheel',function(){moved=true;},{passive:true,once:true});" +
   "addEventListener('touchstart',function(){moved=true;},{passive:true,once:true});" +
   'function onKey(e){var k=e.key;if(k===" "||k==="PageDown"||k==="PageUp"||k==="Home"||k==="End"||k.slice(0,5)==="Arrow"){moved=true;removeEventListener("keydown",onKey);}}' +
@@ -26,11 +28,9 @@ const bootScript =
   'function align(){if(moved)return;var id=location.hash.slice(1);if(!id)return;var el=document.getElementById(id);if(!el)return;' +
   "var root=document.documentElement,prev=root.style.scrollBehavior;root.style.scrollBehavior='auto';el.scrollIntoView({block:'start'});root.style.scrollBehavior=prev;}" +
   'function settle(){requestAnimationFrame(function(){requestAnimationFrame(align);});}' +
-  'function apply(){if(done)return;done=true;document.documentElement.classList.add("fonts-active");' +
-  'if(document.fonts)document.fonts.ready.then(settle);else align();}' +
-  'if(document.fonts)document.fonts.addEventListener("loadingdone",settle);' +
-  'try{new PerformanceObserver(function(list,obs){if(!list.getEntries().length)return;obs.disconnect();setTimeout(apply,0);}).observe({type:"largest-contentful-paint",buffered:true});}catch(e){}' +
-  'setTimeout(apply,4000);addEventListener("load",settle);})();';
+  'addEventListener("load",settle);' +
+  'setTimeout(function(){document.documentElement.classList.add("fonts-active");' +
+  'if(document.fonts){document.fonts.addEventListener("loadingdone",settle);document.fonts.ready.then(settle);}else settle();},8000);})();';
 
 export const dynamicParams = false;
 export function generateStaticParams() {

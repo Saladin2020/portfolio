@@ -38,6 +38,13 @@ test.describe('Content-Security-Policy (F-04)', () => {
       const collect = await watch(page);
       await page.goto(path);
       await scrollThrough(page);
+      // The home layout applies Anuphan after load settles. The global 404 has no boot
+      // script, so `html:not(.js)` uses the face immediately.
+      await page.waitForFunction(
+        () => document.documentElement.classList.contains('fonts-active') || !document.documentElement.classList.contains('js'),
+        null,
+        { timeout: 12_000 },
+      );
       const state = await page.evaluate(async () => {
         await document.fonts.ready;
         const imgs = [...document.images].filter((i) => i.getClientRects().length > 0);
