@@ -1,0 +1,253 @@
+# PR + main checks for the static Next.js portfolio.
+#
+#   * Everything runs at the repo root.
+#   * Design tokens: a copy is committed in design/; `npm run tokens:check` fails on drift.
+#   * Secrets: this workflow references NO secrets and only tests localhost, so Playwright traces
+#     and the HTML report (retain-on-failure) cannot contain the Vercel bypass value.
+#   * Package manager: npm (package-lock.json) -> `npm ci` + setup-node npm cache.
+#   * Scripts used: lint, typecheck, tokens:check, validate:content, build (prebuild runs
+#     validate:content), assert-static, start, test:e2e. Optional (--if-present): format:check, test.
+#   * axe specs use @axe-core/playwright + @playwright/test and are tagged "@a11y" in the title.
+#
+# Job names (= required checks / Vercel Deployment Checks): lint, typecheck, build, e2e, a11y, lighthouse
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: read the repo only. No job needs write access or secrets.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  # Cancel superseded PR runs; never cancel a run on main (it gates production).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  # CI builds behave like preview builds (placeholders allowed as warnings, ARCH §4.5).
+  # The production placeholder gate runs in Vercel's production build (VERCEL_ENV=production).
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # ARCH A-01: Node 24. Switch to `node-version-file: .nvmrc`? Kept explicit so CI stays on 24 even if .nvmrc drifts.
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: ESLint (eslint-config-next, jsx-a11y)
+        run: npm run lint
+      - name: Prettier check (skipped until FE adds format:check)
+        run: npm run --if-present format:check
+      - name: Design-token drift check (ARCH §1.4)
+        run: npm run tokens:check
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # ARCH A-01: Node 24. Switch to `node-version-file: .nvmrc`? Kept explicit so CI stays on 24 even if .nvmrc drifts.
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: TypeScript (strict)
+        run: npm run typecheck
+      - name: Content validation (zod, lengths, alt, permission; ARCH §4.5)
+        run: npm run validate:content
+      - name: Unit tests (skipped until FE adds Vitest `test`)
+        run: npm run --if-present test
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # ARCH A-01: Node 24. Switch to `node-version-file: .nvmrc`? Kept explicit so CI stays on 24 even if .nvmrc drifts.
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: next build
+        run: npm run build
+      - name: Assert every route is static (no "ƒ" routes; ARCH §2.1)
+        run: npm run assert-static
+      - name: Upload build output for e2e / a11y / lighthouse
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: next-build
+          # .next is a dot-folder: upload-artifact skips hidden files unless told otherwise.
+          include-hidden-files: true
+          path: |
+            .next
+            !.next/cache
+          retention-days: 3
+          if-no-files-found: error
+
+  e2e:
+    name: e2e
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: .
+    env:
+      BASE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # ARCH A-01: Node 24. Switch to `node-version-file: .nvmrc`? Kept explicit so CI stays on 24 even if .nvmrc drifts.
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: next-build
+          path: .next
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Start production server
+        run: |
+          npm start > next-start.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS -o /dev/null "$BASE_URL/" && exit 0
+            sleep 1
+          done
+          echo "Server did not start"; cat next-start.log; exit 1
+      - name: Playwright e2e (360/768/1024/1440; nav, filter, dialog, no-JS, reduced motion)
+        run: npm run test:e2e -- --grep-invert "@a11y"
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report-e2e
+          path: playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
+
+  a11y:
+    name: a11y
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: .
+    env:
+      BASE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # ARCH A-01: Node 24. Switch to `node-version-file: .nvmrc`? Kept explicit so CI stays on 24 even if .nvmrc drifts.
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: next-build
+          path: .next
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Start production server
+        run: |
+          npm start > next-start.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS -o /dev/null "$BASE_URL/" && exit 0
+            sleep 1
+          done
+          echo "Server did not start"; cat next-start.log; exit 1
+      - name: axe via @axe-core/playwright (0 serious/critical at 4 widths)
+        run: npm run test:e2e -- --grep "@a11y"
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report-a11y
+          path: playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
+
+  lighthouse:
+    name: lighthouse
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # ARCH A-01: Node 24. Switch to `node-version-file: .nvmrc`? Kept explicit so CI stays on 24 even if .nvmrc drifts.
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: next-build
+          path: .next
+      # Lab run against the local production build. lighthouserc.json starts `npm start`.
+      # Mobile preset (Lighthouse default throttling), 3 runs, median asserted. Field CWV are
+      # out of scope on Hobby without Speed Insights Plus (AD-2), so lab is the gate.
+      # @lhci/cli is used directly (not treosh/lighthouse-ci-action) so it works with either
+      # repo layout (the action has no working-directory input).
+      - name: Lighthouse CI (lab, mobile)
+        run: npx --yes @lhci/cli@0.15.1 autorun
+      - name: Upload Lighthouse results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-results
+          include-hidden-files: true
+          path: |
+            .lighthouseci
+            lhci-report
+          retention-days: 7
+          if-no-files-found: ignore

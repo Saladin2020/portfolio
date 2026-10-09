@@ -1,0 +1,295 @@
+/* Hand-written layer (ARCHITECTURE §1.4): imports, variants, utilities, base rules.
+   Only token variables are referenced here — no raw design values. */
+@import 'tailwindcss';
+@import './generated/tokens.css';
+@import './generated/tailwind-theme.css';
+
+@theme inline {
+  --font-sans: var(--font-anuphan), var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+}
+
+@custom-variant touch (@media (pointer: coarse));
+/* `js:` applies only when JavaScript is running (class added by an inline script in <head>). */
+@custom-variant js (html.js &);
+@custom-variant no-js (html:not(.js) &);
+
+/* ---------- typography composites (desktop/mobile pairs switch at lg) ---------- */
+@utility type-display {
+  font-size: var(--typography-display-mobile-font-size);
+  font-weight: var(--typography-display-mobile-font-weight);
+  line-height: var(--typography-display-mobile-line-height);
+  @media (width >= theme(--breakpoint-lg)) {
+    font-size: var(--typography-display-desktop-font-size);
+    line-height: var(--typography-display-desktop-line-height);
+  }
+}
+@utility type-h2 {
+  font-size: var(--typography-h2-mobile-font-size);
+  font-weight: var(--typography-h2-mobile-font-weight);
+  line-height: var(--typography-h2-mobile-line-height);
+  @media (width >= theme(--breakpoint-lg)) {
+    font-size: var(--typography-h2-desktop-font-size);
+    line-height: var(--typography-h2-desktop-line-height);
+  }
+}
+@utility type-feature-title {
+  font-size: var(--typography-feature-title-mobile-font-size);
+  font-weight: var(--typography-feature-title-mobile-font-weight);
+  line-height: var(--typography-feature-title-mobile-line-height);
+  @media (width >= theme(--breakpoint-lg)) {
+    font-size: var(--typography-feature-title-desktop-font-size);
+    line-height: var(--typography-feature-title-desktop-line-height);
+  }
+}
+@utility type-h3 {
+  font-size: var(--typography-h3-font-size);
+  font-weight: var(--typography-h3-font-weight);
+  line-height: var(--typography-h3-line-height);
+}
+@utility type-lead {
+  font-size: var(--typography-lead-font-size);
+  font-weight: var(--typography-lead-font-weight);
+  line-height: var(--typography-lead-line-height);
+}
+@utility type-body {
+  font-size: var(--typography-body-font-size);
+  font-weight: var(--typography-body-font-weight);
+  line-height: var(--typography-body-line-height);
+}
+@utility type-label {
+  font-size: var(--typography-label-font-size);
+  font-weight: var(--typography-label-font-weight);
+  line-height: var(--typography-label-line-height);
+}
+@utility type-small {
+  font-size: var(--typography-small-font-size);
+  font-weight: var(--typography-small-font-weight);
+  line-height: var(--typography-small-line-height);
+}
+
+/* Gradient keyword (accessibility-notes §1): rainbow only on dark scenes, ink→blue sweep on light
+   (large text only). padding-block keeps Thai tone marks inside the clip box. */
+@utility text-emphasis-dark {
+  background-image: linear-gradient(90deg, var(--gradient-emphasis-on-dark));
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  background-clip: text;
+  color: transparent;
+  padding-block: 0.2em;
+}
+@utility text-emphasis-light {
+  background-image: linear-gradient(90deg, var(--gradient-emphasis-on-light));
+  background-size: 300% 100%;
+  background-position: 50% 50%;
+  background-clip: text;
+  color: transparent;
+  padding-block: 0.2em;
+}
+
+@utility section-x {
+  padding-inline: var(--space-section-x-mobile);
+  @media (width >= theme(--breakpoint-lg)) {
+    padding-inline: var(--space-section-x-desktop);
+  }
+}
+@utility section-y {
+  padding-block: var(--space-section-y-mobile);
+  @media (width >= theme(--breakpoint-lg)) {
+    padding-top: var(--space-section-top-desktop);
+    padding-bottom: var(--space-section-bottom-desktop);
+  }
+}
+
+/* ---------- base ---------- */
+@layer base {
+  html {
+    /* Anchor targets and focused elements clear the floating nav (AC-NAV-02, WCAG 2.4.11). */
+    scroll-padding-top: calc(var(--size-nav-pill-height-mobile) + var(--space-3) + var(--space-3));
+    -webkit-text-size-adjust: 100%;
+    @media (width >= theme(--breakpoint-lg)) {
+      scroll-padding-top: calc(var(--size-nav-pill-height-desktop) + var(--space-3) + var(--space-3));
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  body {
+    background-color: var(--color-light-bg);
+    color: var(--color-light-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-md);
+    line-height: var(--font-line-height-body-th);
+    letter-spacing: var(--font-letter-spacing-none);
+    overflow-x: clip;
+  }
+  /* Thai typography (ARCHITECTURE §6.4): roomy line-heights, no tracking on Thai. */
+  :lang(th) h1,
+  :lang(th) h2,
+  :lang(th) h3 {
+    line-height: var(--font-line-height-heading-th);
+  }
+  :is(h1, h2) [lang='en'] {
+    letter-spacing: var(--font-letter-spacing-display-latin);
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: var(--size-focus-ring-width) solid var(--color-light-focus-ring);
+    outline-offset: var(--size-focus-ring-offset);
+  }
+  .scene-dark :focus-visible {
+    outline-color: var(--color-dark-focus-ring);
+  }
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* ---------- work filter (CSS-driven so server-rendered cards are filtered without re-rendering) ---------- */
+[data-active-filter='web'] [data-category]:not([data-category='web']),
+[data-active-filter='program'] [data-category]:not([data-category='program']),
+[data-active-filter='app'] [data-category]:not([data-category='app']) {
+  display: none;
+}
+
+/* ---------- project dialog ---------- */
+.project-dialog {
+  margin: auto;
+  max-height: 100dvh;
+  overscroll-behavior: contain;
+}
+.project-dialog::backdrop {
+  background-color: var(--color-base-black-a10);
+  backdrop-filter: blur(var(--space-0-5));
+}
+@media (width < theme(--breakpoint-lg)) {
+  .project-dialog {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+  }
+}
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/* ---------- motion: everything below runs only without a reduced-motion preference (§9.2) ---------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    translate: 0 var(--space-3);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+@keyframes bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 var(--space-1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Hero copy entrance (final state is the default; no content depends on animation, AC-A11Y-08). */
+  .motion-entrance {
+    animation: fade-up var(--duration-entrance) var(--easing-out-expo) both;
+  }
+  /* Keyword shimmer: plays once on load and stops (WCAG 2.2.2: finite, < 5 s). */
+  .motion-shimmer {
+    animation: shimmer var(--duration-shimmer-loop) var(--easing-in-out) 1 both;
+  }
+  .motion-bob {
+    animation: bob var(--duration-slow) var(--easing-in-out) 4 alternate;
+  }
+  /* Scroll-linked entrance for sections and cards, where supported. */
+  @supports (animation-timeline: view()) {
+    .motion-reveal {
+      animation: fade-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+  .motion-hover {
+    transition:
+      box-shadow var(--transition-hover),
+      translate var(--transition-hover),
+      background-color var(--transition-hover),
+      color var(--transition-hover);
+  }
+  /* Dialog open/close (native <dialog> + @starting-style). */
+  .project-dialog,
+  .project-dialog::backdrop {
+    transition:
+      opacity var(--duration-medium) var(--easing-out-soft),
+      scale var(--duration-medium) var(--easing-out-soft),
+      overlay var(--duration-medium) allow-discrete,
+      display var(--duration-medium) allow-discrete;
+    opacity: 0;
+  }
+  .project-dialog {
+    scale: 0.98;
+  }
+  .project-dialog[open],
+  .project-dialog[open]::backdrop {
+    opacity: 1;
+    scale: 1;
+  }
+  @starting-style {
+    .project-dialog[open],
+    .project-dialog[open]::backdrop {
+      opacity: 0;
+    }
+    .project-dialog[open] {
+      scale: 0.98;
+    }
+  }
+  .menu-sheet {
+    transition:
+      opacity var(--transition-menu),
+      display var(--duration-medium) allow-discrete;
+  }
+  @starting-style {
+    .menu-sheet[open] {
+      opacity: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-scroll-cue {
+    display: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .nav-pill {
+    backdrop-filter: none;
+    background-color: var(--color-light-surface);
+  }
+}

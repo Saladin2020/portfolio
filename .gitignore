@@ -1,0 +1,63 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Next.js / build output
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# env files (no secrets in this app, but never commit local env)
+.env*
+!.env.example
+
+# logs / OS / editor
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.pem
+.vercel
+.idea/
+.vscode/
+
+# test artifacts
+test-results/
+playwright-report/
+/evidence/
+
+# third-party reference material: never commit
+design/raw/
+**/design/raw/
+*fastwork*
+*Fastwork*
+*FASTWORK*
+**/*fastwork*/**
+**/*Fastwork*/**
+
+# originals / unblurred screenshots must never be committed
+screenshots/
+**/screenshots/
+*.unblurred.*
+
+# keys & credentials
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.npmrc
+
+# OS / tooling
+Thumbs.db
+desktop.ini
+coverage/
+.eslintcache
+
+# CI / Lighthouse outputs
+.lighthouseci/
+lhci-report/
+pw-junit.xml

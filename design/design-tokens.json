@@ -1,0 +1,1697 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Portfolio design tokens v0.1. Adjusted values are marked in $extensions with 'adjusted-for-contrast'. Platform-neutral: no framework or stack assumed.",
+  "color": {
+    "$type": "color",
+    "base": {
+      "white": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hex": "#ffffff"
+        },
+        "$description": "Surface / card",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 surface"
+        }
+      },
+      "sand-50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9608,
+            0.9608,
+            0.9529
+          ],
+          "hex": "#f5f5f3"
+        },
+        "$description": "Light scene background",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 page background (computed body bg)"
+        }
+      },
+      "neutral-100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9451,
+            0.9451,
+            0.9451
+          ],
+          "hex": "#f1f1f1"
+        },
+        "$description": "Muted / chip background",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 muted"
+        }
+      },
+      "neutral-200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9216,
+            0.9216,
+            0.9216
+          ],
+          "hex": "#ebebeb"
+        },
+        "$description": "Hairline border (decorative only)",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 border"
+        }
+      },
+      "neutral-300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8314,
+            0.8314,
+            0.8314
+          ],
+          "hex": "#d4d4d4"
+        },
+        "$description": "Emphasized border (decorative only)",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 border emphasized"
+        }
+      },
+      "neutral-400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6392,
+            0.6392,
+            0.6392
+          ],
+          "hex": "#a3a3a3"
+        },
+        "$description": "Disabled text (exempt) / muted text on dark",
+        "$extensions": {
+          "org.portfolio.source": "brief design-system token (disabled)"
+        }
+      },
+      "neutral-550": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4196,
+            0.4196,
+            0.4196
+          ],
+          "hex": "#6b6b6b"
+        },
+        "$description": "Secondary text on light. Darkened from brief #737373 to pass 4.5:1 on #f5f5f3 and #f1f1f1",
+        "$extensions": {
+          "org.portfolio.source": "adjusted-for-contrast (brief #737373)"
+        }
+      },
+      "slate-700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1686,
+            0.1922,
+            0.2314
+          ],
+          "hex": "#2b313b"
+        },
+        "$description": "Headline ink on light",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 headline ink"
+        }
+      },
+      "neutral-900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0902,
+            0.0902,
+            0.0902
+          ],
+          "hex": "#171717"
+        },
+        "$description": "Primary text on light",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 primary text"
+        }
+      },
+      "navy-900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0745,
+            0.098,
+            0.1333
+          ],
+          "hex": "#131922"
+        },
+        "$description": "Dark scene background + primary pill fill",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 dark scene"
+        }
+      },
+      "navy-50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9373,
+            0.949,
+            0.9686
+          ],
+          "hex": "#eff2f7"
+        },
+        "$description": "Inverted pill fill on dark scenes",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 CTA on dark"
+        }
+      },
+      "grey-on-dark": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5529,
+            0.5686,
+            0.5922
+          ],
+          "hex": "#8d9197"
+        },
+        "$description": "Muted text on dark (5.57:1 on navy-900). Never on light (2.90:1)",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 muted grey"
+        }
+      },
+      "blue-600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.4549,
+            0.8863
+          ],
+          "hex": "#0074e2"
+        },
+        "$description": "Brand-inspired blue. Use only on white (4.57:1) or as large-text/UI accent; fails 4.5:1 on sand-50 and navy-900",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 brand blue"
+        }
+      },
+      "blue-650": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.4,
+            0.8392
+          ],
+          "hex": "#0066d6"
+        },
+        "$description": "Link / accent text on light backgrounds (≥4.8:1 on all light bgs)",
+        "$extensions": {
+          "org.portfolio.source": "adjusted-for-contrast (brief #0074e2)"
+        }
+      },
+      "blue-300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4275,
+            0.6118,
+            0.9961
+          ],
+          "hex": "#6d9cfe"
+        },
+        "$description": "Link / accent text on dark scene (6.59:1 on navy-900)",
+        "$extensions": {
+          "org.portfolio.source": "brief design-system token (dark-mode brand blue)"
+        }
+      },
+      "shimmer-1": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5098,
+            0.7373,
+            1.0
+          ],
+          "hex": "#82bcff"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 shimmer stop"
+        }
+      },
+      "shimmer-2": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1412,
+            0.5137,
+            1.0
+          ],
+          "hex": "#2483ff"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 shimmer stop"
+        }
+      },
+      "shimmer-3": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            0.4,
+            0.9569
+          ],
+          "hex": "#ff66f4"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 shimmer stop"
+        }
+      },
+      "shimmer-4": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            0.1882,
+            0.1608
+          ],
+          "hex": "#ff3029"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 shimmer stop"
+        }
+      },
+      "shimmer-5": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9961,
+            0.4824,
+            0.0078
+          ],
+          "hex": "#fe7b02"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 shimmer stop"
+        }
+      },
+      "note-yellow": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            0.8863,
+            0.6
+          ],
+          "hex": "#ffe299"
+        },
+        "$description": "Optional sticky note (D-10: off at launch)",
+        "$extensions": {
+          "org.portfolio.source": "brief §2 (sampled from screenshot)"
+        }
+      },
+      "note-aqua": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.702,
+            0.9569,
+            0.9373
+          ],
+          "hex": "#b3f4ef"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 (sampled)"
+        }
+      },
+      "note-mint": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.702,
+            0.9373,
+            0.7412
+          ],
+          "hex": "#b3efbd"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 (sampled)"
+        }
+      },
+      "note-lilac": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8275,
+            0.7412,
+            1.0
+          ],
+          "hex": "#d3bdff"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 (sampled)"
+        }
+      },
+      "note-coral": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            0.6863,
+            0.6392
+          ],
+          "hex": "#ffafa3"
+        },
+        "$extensions": {
+          "org.portfolio.source": "brief §2 (sampled)"
+        }
+      },
+      "green-700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.4392,
+            0.0157
+          ],
+          "hex": "#007004"
+        },
+        "$description": "Success",
+        "$extensions": {
+          "org.portfolio.source": "brief §2"
+        }
+      },
+      "red-700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6471,
+            0.0471,
+            0.1451
+          ],
+          "hex": "#a50c25"
+        },
+        "$description": "Error",
+        "$extensions": {
+          "org.portfolio.source": "brief §2"
+        }
+      },
+      "amber-700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4549,
+            0.3569,
+            0.0
+          ],
+          "hex": "#745b00"
+        },
+        "$description": "Warning",
+        "$extensions": {
+          "org.portfolio.source": "brief §2"
+        }
+      },
+      "black-a05": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "hex": "#000000",
+          "alpha": 0.051
+        },
+        "$description": "Hover overlay",
+        "$extensions": {
+          "org.portfolio.source": "brief design-system token overlay-hover"
+        }
+      },
+      "black-a10": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "hex": "#000000",
+          "alpha": 0.102
+        },
+        "$description": "Pressed overlay",
+        "$extensions": {
+          "org.portfolio.source": "brief design-system token overlay-pressed"
+        }
+      },
+      "white-a12": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hex": "#ffffff",
+          "alpha": 0.122
+        },
+        "$description": "Translucent chip/nav on dark",
+        "$extensions": {
+          "org.portfolio.source": "brief §4 language switch bg"
+        }
+      },
+      "white-a80": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hex": "#ffffff",
+          "alpha": 0.8
+        },
+        "$description": "Body text on dark (11.55:1)",
+        "$extensions": {
+          "org.portfolio.source": "brief §4 feature row rest text #fffc"
+        }
+      }
+    },
+    "light": {
+      "$description": "Semantic roles for light scenes (#f5f5f3 / white cards).",
+      "bg": {
+        "$value": "{color.base.sand-50}"
+      },
+      "surface": {
+        "$value": "{color.base.white}"
+      },
+      "muted": {
+        "$value": "{color.base.neutral-100}"
+      },
+      "text": {
+        "heading": {
+          "$value": "{color.base.slate-700}"
+        },
+        "primary": {
+          "$value": "{color.base.neutral-900}"
+        },
+        "secondary": {
+          "$value": "{color.base.neutral-550}"
+        },
+        "disabled": {
+          "$value": "{color.base.neutral-400}"
+        },
+        "link": {
+          "$value": "{color.base.blue-650}"
+        }
+      },
+      "border": {
+        "subtle": {
+          "$value": "{color.base.neutral-200}",
+          "$description": "Decorative card edge; never the only cue for a control"
+        },
+        "strong": {
+          "$value": "{color.base.neutral-550}",
+          "$description": "Control boundary when the border is the only indicator (≥3:1)"
+        }
+      },
+      "action": {
+        "primary-bg": {
+          "$value": "{color.base.navy-900}"
+        },
+        "primary-text": {
+          "$value": "{color.base.white}"
+        },
+        "secondary-border": {
+          "$value": "{color.base.navy-900}"
+        },
+        "secondary-text": {
+          "$value": "{color.base.navy-900}"
+        }
+      },
+      "focus-ring": {
+        "$value": "{color.base.neutral-900}"
+      }
+    },
+    "dark": {
+      "$description": "Semantic roles for dark scenes (#131922).",
+      "bg": {
+        "$value": "{color.base.navy-900}"
+      },
+      "surface": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1216,
+            0.149,
+            0.1922
+          ],
+          "hex": "#1f2631"
+        },
+        "$description": "Raised panel on dark (estimate; not in brief)",
+        "$extensions": {
+          "org.portfolio.source": "new (estimate)"
+        }
+      },
+      "text": {
+        "heading": {
+          "$value": "{color.base.white}"
+        },
+        "primary": {
+          "$value": "{color.base.white}"
+        },
+        "secondary": {
+          "$value": "{color.base.white-a80}"
+        },
+        "muted": {
+          "$value": "{color.base.grey-on-dark}"
+        },
+        "link": {
+          "$value": "{color.base.blue-300}"
+        }
+      },
+      "action": {
+        "primary-bg": {
+          "$value": "{color.base.navy-50}"
+        },
+        "primary-text": {
+          "$value": "{color.base.slate-700}"
+        },
+        "secondary-border": {
+          "$value": "{color.base.navy-50}"
+        },
+        "secondary-text": {
+          "$value": "{color.base.white}"
+        }
+      },
+      "focus-ring": {
+        "$value": "{color.base.white}"
+      }
+    },
+    "status": {
+      "success": {
+        "$value": "{color.base.green-700}"
+      },
+      "error": {
+        "$value": "{color.base.red-700}"
+      },
+      "warning": {
+        "$value": "{color.base.amber-700}"
+      }
+    }
+  },
+  "gradient": {
+    "$type": "gradient",
+    "emphasis-on-dark": {
+      "$description": "Animated keyword fill on dark scenes only (all stops ≥4.8:1 on navy-900). Angle 90deg, background-size 300%.",
+      "$extensions": {
+        "org.portfolio.source": "brief §2/§3 shimmer"
+      },
+      "$value": [
+        {
+          "color": "{color.base.shimmer-1}",
+          "position": 0
+        },
+        {
+          "color": "{color.base.shimmer-2}",
+          "position": 0.25
+        },
+        {
+          "color": "{color.base.shimmer-3}",
+          "position": 0.5
+        },
+        {
+          "color": "{color.base.shimmer-4}",
+          "position": 0.75
+        },
+        {
+          "color": "{color.base.shimmer-5}",
+          "position": 1
+        }
+      ]
+    },
+    "emphasis-on-light": {
+      "$description": "Keyword sweep on light scenes: ink → blue → ink. Light-scene shimmer stops fail contrast, so only this variant is allowed on light (large text only).",
+      "$extensions": {
+        "org.portfolio.source": "brief P .commission-copy gradient (#2b313b/#82bcff/#2483ff), adjusted: #82bcff removed"
+      },
+      "$value": [
+        {
+          "color": "{color.base.slate-700}",
+          "position": 0
+        },
+        {
+          "color": "{color.base.slate-700}",
+          "position": 0.38
+        },
+        {
+          "color": "{color.base.shimmer-2}",
+          "position": 0.5
+        },
+        {
+          "color": "{color.base.slate-700}",
+          "position": 0.62
+        },
+        {
+          "color": "{color.base.slate-700}",
+          "position": 1
+        }
+      ]
+    }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "sans": {
+        "$value": [
+          "Anuphan",
+          "IBM Plex Sans Thai",
+          "Noto Sans Thai Looped",
+          "Leelawadee UI",
+          "Thonburi",
+          "Tahoma",
+          "system-ui",
+          "sans-serif"
+        ],
+        "$description": "Primary UI + headline family, Thai and Latin in one file. Replaces Google Sans (licence not cleared).",
+        "$extensions": {
+          "org.portfolio.font": {
+            "license": "SIL OFL 1.1, no Reserved Font Name",
+            "source": "https://github.com/google/fonts/tree/main/ofl/anuphan (upstream cadsondemak/Anuphan)",
+            "axes": "wght 100–700 (variable)",
+            "coverage-verified": "Thai U+0E01–0E5B 87/87, Basic Latin + Latin-1 191/191 (fontTools cmap check, 2026-10-09)",
+            "notes": "Loopless modern Thai, closest in feel to the brief's geometric sans. Latin design is derived from IBM Plex Sans. Fallback 1: IBM Plex Sans Thai (OFL with Reserved Font Name 'Plex'; static weights; Thai+Latin verified). Fallback 2: Noto Sans Thai Looped (OFL; Latin coverage partial 179/191, so system Latin is used for missing chars). Then OS Thai fonts."
+          }
+        }
+      },
+      "hand": {
+        "$value": [
+          "Mali",
+          "Itim",
+          "cursive"
+        ],
+        "$description": "Optional handwritten accent (sticky notes; D-10 = off at launch, so nothing loads in v1.0). Mali is first and is the only accent face that gets loaded (weight 400, lazy, preload: false; ARCHITECTURE §6.5). Itim stays as a local-only fallback name, then the generic cursive. Never for body copy.",
+        "$extensions": {
+          "org.portfolio.font": {
+            "license": "SIL OFL 1.1 (Mali: Cadson Demak; Itim: Cadson Demak/Impallari)",
+            "coverage-verified": "Mali: Thai 87/87, Latin-1 190/191 (missing U+00B5); Itim: Thai 87/87, Latin-1 191/191",
+            "replaces": "Playpen Sans (Latin-only, see brief §3)",
+            "loading": "Mali only, per ARCHITECTURE §6.5 / §12.4 R-8 (Mali ≈32 KB vs Itim ≈62 KB for Thai + Latin at 400). Itim is not @font-face-loaded."
+          }
+        }
+      },
+      "mono": {
+        "$value": [
+          "ui-monospace",
+          "SF Mono",
+          "Menlo",
+          "Consolas",
+          "Liberation Mono",
+          "monospace"
+        ],
+        "$description": "Code snippets only (system stack, no download)."
+      }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": {
+        "$value": 400
+      },
+      "medium": {
+        "$value": 500
+      },
+      "semibold": {
+        "$value": 600
+      },
+      "bold": {
+        "$value": 700
+      }
+    },
+    "size": {
+      "$type": "dimension",
+      "$description": "Brief §3 page scale + design-system scale. rem at 16px root.",
+      "xs": {
+        "$value": {
+          "value": 0.75,
+          "unit": "rem"
+        },
+        "$description": "12px meta (never for essential text)"
+      },
+      "sm": {
+        "$value": {
+          "value": 0.875,
+          "unit": "rem"
+        },
+        "$description": "14px small / footer"
+      },
+      "md": {
+        "$value": {
+          "value": 1,
+          "unit": "rem"
+        },
+        "$description": "16px body (AC-RESP-04 minimum)"
+      },
+      "lg": {
+        "$value": {
+          "value": 1.1875,
+          "unit": "rem"
+        },
+        "$description": "19px lead / subtitle"
+      },
+      "xl": {
+        "$value": {
+          "value": 1.4375,
+          "unit": "rem"
+        },
+        "$description": "23px card title"
+      },
+      "2xl": {
+        "$value": {
+          "value": 1.75,
+          "unit": "rem"
+        },
+        "$description": "28px"
+      },
+      "3xl": {
+        "$value": {
+          "value": 2.25,
+          "unit": "rem"
+        },
+        "$description": "36px h2 mobile"
+      },
+      "4xl": {
+        "$value": {
+          "value": 2.5,
+          "unit": "rem"
+        },
+        "$description": "40px hero mobile / feature title desktop"
+      },
+      "5xl": {
+        "$value": {
+          "value": 3,
+          "unit": "rem"
+        },
+        "$description": "48px h2 desktop"
+      },
+      "6xl": {
+        "$value": {
+          "value": 4,
+          "unit": "rem"
+        },
+        "$description": "64px hero desktop"
+      }
+    },
+    "line-height": {
+      "$type": "number",
+      "$description": "Thai needs more room than the brief's Latin 1.15: Anuphan glyph extents span −0.324 to 1.119 em (1.443 em). Values below are estimates to verify on devices (AC-TH-02).",
+      "heading-th": {
+        "$value": 1.35
+      },
+      "heading-latin": {
+        "$value": 1.15
+      },
+      "body-th": {
+        "$value": 1.65
+      },
+      "body-latin": {
+        "$value": 1.5
+      },
+      "ui": {
+        "$value": 1.4
+      }
+    },
+    "letter-spacing": {
+      "$type": "dimension",
+      "$description": "AC-TH-03: negative tracking only on lang=en runs; Thai = 0.",
+      "none": {
+        "$value": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "display-latin": {
+        "$value": {
+          "value": -0.02,
+          "unit": "rem"
+        },
+        "$description": "≈ −0.32px; brief used −1.6px at 64px (−0.025em). Apply only to Latin headings."
+      }
+    }
+  },
+  "typography": {
+    "$type": "typography",
+    "display-desktop": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.6xl}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.line-height.heading-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Hero h1 ≥1031px (brief 64/500)"
+    },
+    "display-mobile": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.4xl}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.line-height.heading-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Hero h1 ≤640px (brief 40/500)"
+    },
+    "h2-desktop": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.5xl}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.line-height.heading-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Section h2 (brief 48/500)"
+    },
+    "h2-mobile": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.3xl}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.line-height.heading-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Section h2 mobile (brief 36/500)"
+    },
+    "feature-title-desktop": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.4xl}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.heading-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Process row title on dark (brief 40/400)"
+    },
+    "feature-title-mobile": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.2xl}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.heading-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      }
+    },
+    "h3": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.xl}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.heading-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Card / group title"
+    },
+    "lead": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.lg}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.body-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Hero subtitle / section intro"
+    },
+    "body": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.md}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.body-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      }
+    },
+    "label": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.md}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.line-height.ui}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Buttons, tabs, nav links"
+    },
+    "small": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.sm}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.body-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Meta, footer"
+    },
+    "note": {
+      "$value": {
+        "fontFamily": "{font.family.hand}",
+        "fontSize": "{font.size.lg}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.body-th}",
+        "letterSpacing": "{font.letter-spacing.none}"
+      },
+      "$description": "Optional sticky notes (Mali/Itim)"
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "$description": "Brief design-system spacing scale + section rhythm.",
+    "0-5": {
+      "$value": {
+        "value": 2,
+        "unit": "px"
+      }
+    },
+    "1": {
+      "$value": {
+        "value": 6,
+        "unit": "px"
+      }
+    },
+    "1-5": {
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      }
+    },
+    "2": {
+      "$value": {
+        "value": 12,
+        "unit": "px"
+      }
+    },
+    "3": {
+      "$value": {
+        "value": 16,
+        "unit": "px"
+      }
+    },
+    "4": {
+      "$value": {
+        "value": 24,
+        "unit": "px"
+      }
+    },
+    "5": {
+      "$value": {
+        "value": 28,
+        "unit": "px"
+      }
+    },
+    "6": {
+      "$value": {
+        "value": 32,
+        "unit": "px"
+      }
+    },
+    "7": {
+      "$value": {
+        "value": 42,
+        "unit": "px"
+      }
+    },
+    "8": {
+      "$value": {
+        "value": 48,
+        "unit": "px"
+      }
+    },
+    "9": {
+      "$value": {
+        "value": 54,
+        "unit": "px"
+      }
+    },
+    "10": {
+      "$value": {
+        "value": 60,
+        "unit": "px"
+      }
+    },
+    "11": {
+      "$value": {
+        "value": 64,
+        "unit": "px"
+      }
+    },
+    "12": {
+      "$value": {
+        "value": 72,
+        "unit": "px"
+      }
+    },
+    "section-x-desktop": {
+      "$value": {
+        "value": 56,
+        "unit": "px"
+      },
+      "$description": "brief §4 section padding inline"
+    },
+    "section-top-desktop": {
+      "$value": {
+        "value": 96,
+        "unit": "px"
+      }
+    },
+    "section-bottom-desktop": {
+      "$value": {
+        "value": 80,
+        "unit": "px"
+      }
+    },
+    "section-bottom-last": {
+      "$value": {
+        "value": 144,
+        "unit": "px"
+      }
+    },
+    "section-x-mobile": {
+      "$value": {
+        "value": 20,
+        "unit": "px"
+      },
+      "$description": "brief §9 (panel = 100vw − 24px) + inner padding, estimate"
+    },
+    "section-y-mobile": {
+      "$value": {
+        "value": 64,
+        "unit": "px"
+      },
+      "$description": "estimate"
+    }
+  },
+  "size": {
+    "$type": "dimension",
+    "content-max": {
+      "$value": {
+        "value": 1328,
+        "unit": "px"
+      },
+      "$description": "brief §4"
+    },
+    "panel-max": {
+      "$value": {
+        "value": 1398,
+        "unit": "px"
+      },
+      "$description": "brief §4 panel width"
+    },
+    "copy-max": {
+      "$value": {
+        "value": 720,
+        "unit": "px"
+      },
+      "$description": "brief §4 copy blocks 720–1016"
+    },
+    "control-height": {
+      "$value": {
+        "value": 48,
+        "unit": "px"
+      },
+      "$description": "Pill button height (brief §4)"
+    },
+    "control-height-sm": {
+      "$value": {
+        "value": 40,
+        "unit": "px"
+      }
+    },
+    "touch-target-min": {
+      "$value": {
+        "value": 44,
+        "unit": "px"
+      },
+      "$description": "AC-RESP-03 touch layouts"
+    },
+    "target-min": {
+      "$value": {
+        "value": 24,
+        "unit": "px"
+      },
+      "$description": "WCAG 2.2 SC 2.5.8 absolute minimum"
+    },
+    "nav-pill-height-desktop": {
+      "$value": {
+        "value": 64,
+        "unit": "px"
+      }
+    },
+    "nav-pill-height-mobile": {
+      "$value": {
+        "value": 52,
+        "unit": "px"
+      }
+    },
+    "nav-pill-max": {
+      "$value": {
+        "value": 984,
+        "unit": "px"
+      },
+      "$description": "brief --pill-w"
+    },
+    "focus-ring-width": {
+      "$value": {
+        "value": 2,
+        "unit": "px"
+      }
+    },
+    "focus-ring-offset": {
+      "$value": {
+        "value": 2,
+        "unit": "px"
+      }
+    }
+  },
+  "breakpoint": {
+    "$type": "dimension",
+    "$description": "Min-width breakpoints (layout at ≥ value), the same numbers as the Tailwind breakpoints in ARCHITECTURE §1.2 / §12.4 R-2. lg (1030) is the single desktop switch: inline nav and pinned process rows at ≥ 1030px; collapsed menu and static stack below. QA widths are 360/768/1024/1440 (PRD).",
+    "sm": {
+      "$value": {
+        "value": 640,
+        "unit": "px"
+      }
+    },
+    "md": {
+      "$value": {
+        "value": 860,
+        "unit": "px"
+      }
+    },
+    "lg": {
+      "$value": {
+        "value": 1030,
+        "unit": "px"
+      },
+      "$description": "Single desktop switch: ≥ 1030px = inline nav + optional pinned process rows; < 1030px = menu button + static stack"
+    },
+    "xl": {
+      "$value": {
+        "value": 1200,
+        "unit": "px"
+      }
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "inner": {
+      "$value": {
+        "value": 6,
+        "unit": "px"
+      }
+    },
+    "element": {
+      "$value": {
+        "value": 12,
+        "unit": "px"
+      },
+      "$description": "inputs, small cards, images inside cards"
+    },
+    "container": {
+      "$value": {
+        "value": 16,
+        "unit": "px"
+      },
+      "$description": "cards, list rows"
+    },
+    "panel": {
+      "$value": {
+        "value": 24,
+        "unit": "px"
+      },
+      "$description": "large panels, dialogs"
+    },
+    "scene": {
+      "$value": {
+        "value": 32,
+        "unit": "px"
+      },
+      "$description": "scroll-shrink panels (brief 24–32px)"
+    },
+    "full": {
+      "$value": {
+        "value": 9999,
+        "unit": "px"
+      },
+      "$description": "pills, chips, avatars"
+    }
+  },
+  "shadow": {
+    "$type": "shadow",
+    "low": {
+      "$value": [
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.05,
+            "hex": "#000000"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 2,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 4,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.1,
+            "hex": "#000000"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 4,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 8,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        }
+      ],
+      "$description": "Raised chip / small card",
+      "$extensions": {
+        "org.portfolio.source": "brief §6 --shadow-low"
+      }
+    },
+    "med": {
+      "$value": [
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.05,
+            "hex": "#000000"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 2,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 4,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.1,
+            "hex": "#000000"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 4,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 12,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        }
+      ],
+      "$description": "Hovered card",
+      "$extensions": {
+        "org.portfolio.source": "brief §6 --shadow-med"
+      }
+    },
+    "high": {
+      "$value": [
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.1,
+            "hex": "#000000"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 4,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 6,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.15,
+            "hex": "#000000"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 12,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 24,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        }
+      ],
+      "$description": "Dialog / popover",
+      "$extensions": {
+        "org.portfolio.source": "brief §6 --shadow-high"
+      }
+    },
+    "card": {
+      "$value": {
+        "color": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "alpha": 0.08,
+          "hex": "#000000"
+        },
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": {
+          "value": 2,
+          "unit": "px"
+        },
+        "blur": {
+          "value": 4,
+          "unit": "px"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Default card (most common on reference page)",
+      "$extensions": {
+        "org.portfolio.source": "brief §6"
+      }
+    },
+    "panel": {
+      "$value": [
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0588,
+              0.0902,
+              0.1647
+            ],
+            "alpha": 0.1,
+            "hex": "#0f172a"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 10,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 28,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0588,
+              0.0902,
+              0.1647
+            ],
+            "alpha": 0.06,
+            "hex": "#0f172a"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 2,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 8,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        }
+      ],
+      "$description": "Large showcase panel",
+      "$extensions": {
+        "org.portfolio.source": "brief §6"
+      }
+    },
+    "note-lifted": {
+      "$value": {
+        "color": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "alpha": 0.22,
+          "hex": "#000000"
+        },
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": {
+          "value": 12,
+          "unit": "px"
+        },
+        "blur": {
+          "value": 28,
+          "unit": "px"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Dragged/lifted note (optional)",
+      "$extensions": {
+        "org.portfolio.source": "brief §6"
+      }
+    }
+  },
+  "duration": {
+    "$type": "duration",
+    "fast": {
+      "$value": {
+        "value": 125,
+        "unit": "ms"
+      }
+    },
+    "fast-max": {
+      "$value": {
+        "value": 165,
+        "unit": "ms"
+      },
+      "$description": "hover/press feedback"
+    },
+    "medium": {
+      "$value": {
+        "value": 300,
+        "unit": "ms"
+      },
+      "$description": "menus, toasts"
+    },
+    "entrance": {
+      "$value": {
+        "value": 560,
+        "unit": "ms"
+      },
+      "$description": "section/card entrance"
+    },
+    "slow": {
+      "$value": {
+        "value": 700,
+        "unit": "ms"
+      }
+    },
+    "shimmer-loop": {
+      "$value": {
+        "value": 4000,
+        "unit": "ms"
+      },
+      "$description": "emphasis gradient loop; off with reduced motion"
+    },
+    "toast-visible": {
+      "$value": {
+        "value": 3000,
+        "unit": "ms"
+      },
+      "$description": "copy-email confirmation (estimate)"
+    }
+  },
+  "easing": {
+    "$type": "cubicBezier",
+    "standard": {
+      "$value": [
+        0.24,
+        1,
+        0.4,
+        1
+      ],
+      "$description": "brief §8 --ease-standard"
+    },
+    "out-expo": {
+      "$value": [
+        0.16,
+        1,
+        0.3,
+        1
+      ],
+      "$description": "brief §8 dominant page ease (entrances)"
+    },
+    "out-soft": {
+      "$value": [
+        0.22,
+        1,
+        0.36,
+        1
+      ],
+      "$description": "brief §8"
+    },
+    "in-out": {
+      "$value": [
+        0.4,
+        0,
+        0.2,
+        1
+      ],
+      "$description": "brief §8 (nav/lang switch colour)"
+    }
+  },
+  "transition": {
+    "$type": "transition",
+    "hover": {
+      "$value": {
+        "duration": "{duration.fast-max}",
+        "delay": {
+          "value": 0,
+          "unit": "ms"
+        },
+        "timingFunction": "{easing.standard}"
+      }
+    },
+    "entrance": {
+      "$value": {
+        "duration": "{duration.entrance}",
+        "delay": {
+          "value": 0,
+          "unit": "ms"
+        },
+        "timingFunction": "{easing.out-expo}"
+      },
+      "$description": "Fade + 16px rise. Reduced motion: opacity only, ≤ duration.fast, or none."
+    },
+    "menu": {
+      "$value": {
+        "duration": "{duration.medium}",
+        "delay": {
+          "value": 0,
+          "unit": "ms"
+        },
+        "timingFunction": "{easing.out-soft}"
+      }
+    }
+  }
+}

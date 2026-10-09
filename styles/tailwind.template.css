@@ -1,0 +1,30 @@
+/* Template for @terrazzo/plugin-tailwind (see terrazzo.config.mjs).
+   Tailwind's default scales are reset so only token values produce utilities. */
+@theme {
+  --breakpoint-*: initial;
+  --color-*: initial;
+  --spacing-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --ease-*: initial;
+  --text-*: initial;
+  --font-weight-*: initial;
+  --leading-*: initial;
+  --tracking-*: initial;
+  --container-*: initial;
+
+  @tz (tzMode: ".");
+
+  /* size.* tokens that feed Tailwind namespaces (names chosen for readable utilities) */
+  --spacing-0: 0px;
+  --spacing-control: var(--size-control-height);
+  --spacing-control-sm: var(--size-control-height-sm);
+  --spacing-touch: var(--size-touch-target-min);
+  --spacing-target: var(--size-target-min);
+  --spacing-nav-desktop: var(--size-nav-pill-height-desktop);
+  --spacing-nav-mobile: var(--size-nav-pill-height-mobile);
+  --container-content: var(--size-content-max);
+  --container-panel: var(--size-panel-max);
+  --container-copy: var(--size-copy-max);
+  --container-nav: var(--size-nav-pill-max);
+}
