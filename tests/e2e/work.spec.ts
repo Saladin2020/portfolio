@@ -80,6 +80,25 @@ test.describe('featured work: filter + project detail (S-3, S-3b, AC-WORK-*)', (
     }
   });
 
+  test('dialog: Escape returns to /#work even when the history entry has no Next state', async ({ page }, testInfo) => {
+    test.skip((testInfo.project.use.viewport?.width ?? 0) !== 1440, 'history behaviour is independent of viewport');
+    await page.goto('/#work');
+    // Hydration normally writes __NA a moment after load. A click in that window is what preview hit.
+    await page.evaluate(() => history.replaceState(null, '', location.href));
+    const trigger = page.locator('a[data-project-link="p3"]').first();
+    await trigger.scrollIntoViewIfNeeded();
+    await trigger.click();
+    const dialog = page.locator('#project-dialog-p3');
+    await expect(dialog).toBeVisible();
+    await expect(page).toHaveURL(/\/work\/p3$/);
+    await expect(page.locator('#hero-heading')).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL(/\/#work$/);
+    await expect(trigger).toBeFocused();
+    await expect(page.locator('#hero-heading')).toHaveCount(1);
+  });
+
   test('dialog: browser Back closes it; Forward reopens it; close button works', async ({ page }) => {
     await page.goto('/');
     const trigger = page.locator('a[data-project-link="labwise"]').first();
