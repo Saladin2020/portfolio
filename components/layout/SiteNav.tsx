@@ -1,7 +1,5 @@
 import { getI18n } from '@/i18n/server';
 import { getContent } from '@/content';
-import { MobileMenu } from './MobileMenu';
-import { ScrollSpy } from './ScrollSpy';
 import { navHref, navItems } from './nav-items';
 import { cx } from '@/components/ui/cx';
 
@@ -48,17 +46,57 @@ export async function SiteNav({ onHome = true }: { onHome?: boolean }) {
         </ul>
 
         <div className="lg:hidden">
-          <MobileMenu
-            items={items.map((i) => ({ ...i, href: navHref(i.id, onHome) }))}
-            labels={{ open: m.nav.menuOpen, close: m.nav.menuClose, menu: m.nav.menu, nav: m.nav.label }}
-          />
+          <button
+            type="button"
+            className="hidden size-touch items-center justify-center rounded-full bg-light-action-primary-bg text-light-action-primary-text js:inline-flex"
+            aria-expanded="false"
+            aria-controls="mobile-menu"
+            aria-label={m.nav.menuOpen}
+            data-open-label={m.nav.menuOpen}
+            data-close-label={m.nav.menuClose}
+            data-nav="menu-button"
+          >
+            <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+          <dialog id="mobile-menu" aria-label={m.nav.label} className="menu-sheet fixed inset-x-0 top-0 m-0 w-full max-w-full bg-transparent p-3 backdrop:bg-transparent">
+            <div className="mx-auto max-w-nav rounded-panel border border-light-border-subtle bg-light-surface p-3 shadow-high">
+              <div className="flex items-center justify-between pb-2">
+                <span className="pl-2 type-label text-light-text-secondary">{m.nav.menu}</span>
+                <button
+                  type="button"
+                  aria-label={m.nav.menuClose}
+                  className="inline-flex size-touch items-center justify-center rounded-full border-2 border-light-action-secondary-border text-light-action-secondary-text"
+                  data-menu-close
+                >
+                  <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </button>
+              </div>
+              <ul className="flex flex-col gap-1">
+                {items.map((item) => (
+                  <li key={item.id}>
+                    <a
+                      href={navHref(item.id, onHome)}
+                      data-nav-link={item.id}
+                      className="flex min-h-touch items-center rounded-element px-3 type-lead text-light-text-heading no-underline hover:bg-light-muted aria-[current=true]:font-semibold"
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </dialog>
           {/* No-JS fallback: the menu button needs JS, so link to the footer section list instead. */}
           <a href="#site-sections" className="hidden min-h-touch items-center rounded-full px-3 type-label no-js:inline-flex">
             {m.nav.menu}
           </a>
         </div>
       </nav>
-      {onHome && <ScrollSpy ids={items.map((i) => i.id)} />}
+      {/* Scroll spy is wired by the islands script so this nav stays a Server Component. */}
     </header>
   );
 }
