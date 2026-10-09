@@ -62,4 +62,36 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
       }
     }
   });
+
+  test('a scripted scroll during font load is not pulled back to the hash', async ({ page }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 1440, 'font-load scroll is independent of viewport');
+    const client = await page.context().newCDPSession(page);
+    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+    await page.route('**/*.woff2', async (route) => {
+      await new Promise((r) => setTimeout(r, 1200));
+      await route.continue();
+    });
+    await page.goto('/#about', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+    // Move away from the anchor with an instant scroll. scroll-behavior:smooth would
+    // keep animating after we sample scrollY and look like a snap-back.
+    const scrolled = await page.evaluate(() => {
+      const root = document.documentElement;
+      const prev = root.style.scrollBehavior;
+      root.style.scrollBehavior = 'auto';
+      const before = window.scrollY;
+      window.scrollTo(0, Math.max(0, before - 360));
+      const after = window.scrollY;
+      root.style.scrollBehavior = prev;
+      return { before, after };
+    });
+    expect(scrolled.before - scrolled.after).toBeGreaterThan(40);
+    await page.evaluate(() => document.fonts.ready);
+    // Past the post-font align. A late loadingdone used to jump back to the hash.
+    // Font swap can still anchor the viewport by a few dozen pixels; that is not a snap-back.
+    await page.waitForTimeout(800);
+    const top = await page.locator('#about-heading').evaluate((el) => Math.round(el.getBoundingClientRect().top));
+    expect(top, 'scripted scroll was pulled back to the #about offset').toBeGreaterThan(192 + 120);
+    await client.detach();
+  });
 });

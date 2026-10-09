@@ -13,24 +13,37 @@ import '@/styles/globals.css';
 /**
  * Adds `js` before paint, then `fonts-active` on the task after the text LCP entry.
  * Applying Anuphan reflows Thai text above a hash target, which leaves the heading
- * under the nav (CI measured ~40px). Re-align the hash once the face is ready,
- * unless the reader has already scrolled.
+ * under the nav (CI measured ~40px). Re-align the hash once the face is ready.
+ * Any scroll this script did not perform counts as the reader (scrollbar, scrollBy,
+ * find-in-page). Stop after that post-font align so a late loadingdone cannot jump
+ * the page again. Dialog and menu call freeze() so they are never re-aligned.
  */
 const bootScript =
   "document.documentElement.classList.add('js');" +
-  '(function(){var done=false,moved=false;' +
-  "addEventListener('wheel',function(){moved=true;},{passive:true,once:true});" +
-  "addEventListener('touchstart',function(){moved=true;},{passive:true,once:true});" +
+  '(function(){var sealed=false,moved=false,fontsDone=false,listening=false,own=0;' +
+  'function seal(){if(sealed)return;sealed=true;removeEventListener("scroll",onScroll);' +
+  'if(document.fonts)document.fonts.removeEventListener("loadingdone",kick);removeEventListener("load",kick);}' +
+  'function onScroll(){if(!listening||own>0||sealed)return;moved=true;}' +
+  'function programmatic(fn){own++;try{fn();}finally{requestAnimationFrame(function(){own=Math.max(0,own-1);});}}' +
+  'function align(){if(sealed)return;if(moved){seal();return;}var id=location.hash.slice(1);if(!id){seal();return;}' +
+  'var el=document.getElementById(id);if(!el)return;' +
+  'programmatic(function(){var root=document.documentElement,prev=root.style.scrollBehavior;root.style.scrollBehavior="auto";el.scrollIntoView({block:"start"});root.style.scrollBehavior=prev;});' +
+  'if(fontsDone)seal();}' +
+  'function kick(){if(sealed)return;requestAnimationFrame(function(){requestAnimationFrame(align);});}' +
+  'function apply(){if(fontsDone&&document.documentElement.classList.contains("fonts-active"))return;' +
+  'own++;document.documentElement.classList.add("fonts-active");' +
+  'requestAnimationFrame(function(){requestAnimationFrame(function(){own=Math.max(0,own-1);});});' +
+  'var ready=document.fonts?document.fonts.ready:Promise.resolve();ready.then(function(){fontsDone=true;if(!sealed)kick();});}' +
+  'addEventListener("scroll",onScroll,{passive:true});' +
+  'addEventListener("wheel",function(){moved=true;},{passive:true,once:true});' +
+  'addEventListener("touchstart",function(){moved=true;},{passive:true,once:true});' +
   'function onKey(e){var k=e.key;if(k===" "||k==="PageDown"||k==="PageUp"||k==="Home"||k==="End"||k.slice(0,5)==="Arrow"){moved=true;removeEventListener("keydown",onKey);}}' +
-  "addEventListener('keydown',onKey);" +
-  'function align(){if(moved)return;var id=location.hash.slice(1);if(!id)return;var el=document.getElementById(id);if(!el)return;' +
-  "var root=document.documentElement,prev=root.style.scrollBehavior;root.style.scrollBehavior='auto';el.scrollIntoView({block:'start'});root.style.scrollBehavior=prev;}" +
-  'function settle(){requestAnimationFrame(function(){requestAnimationFrame(align);});}' +
-  'function apply(){if(done)return;done=true;document.documentElement.classList.add("fonts-active");' +
-  'if(document.fonts)document.fonts.ready.then(settle);else align();}' +
-  'if(document.fonts)document.fonts.addEventListener("loadingdone",settle);' +
+  'addEventListener("keydown",onKey);' +
+  'requestAnimationFrame(function(){requestAnimationFrame(function(){listening=true;});});' +
+  'if(document.fonts)document.fonts.addEventListener("loadingdone",kick);' +
   'try{new PerformanceObserver(function(list,obs){if(!list.getEntries().length)return;obs.disconnect();setTimeout(apply,0);}).observe({type:"largest-contentful-paint",buffered:true});}catch(e){}' +
-  'setTimeout(apply,4000);addEventListener("load",settle);})();';
+  'setTimeout(apply,4000);addEventListener("load",kick);' +
+  'window.__portfolioHashAlign={programmatic:programmatic,freeze:function(){moved=true;seal();}};})();';
 
 export const dynamicParams = false;
 export function generateStaticParams() {
