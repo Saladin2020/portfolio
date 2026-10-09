@@ -41,7 +41,15 @@ export function ProjectDialogEnhancer() {
       snapshotPageState();
       const s = window.history.state as Hist | null;
       if (s?.__NA || !pageState) return;
-      window.history.replaceState(pageState, '', window.location.pathname + window.location.search + window.location.hash);
+      const { pathname, search, hash } = window.location;
+      const root = document.documentElement;
+      const prev = root.style.scrollBehavior;
+      // replaceState during this popstate cancels the browser's fragment scroll.
+      root.style.scrollBehavior = 'auto';
+      window.history.replaceState(pageState, '', pathname + search + hash);
+      const id = hash.slice(1);
+      if (id) document.getElementById(id)?.scrollIntoView({ block: 'start' });
+      root.style.scrollBehavior = prev;
     };
     snapshotPageState();
     const stateSlug = (): string | null => {
