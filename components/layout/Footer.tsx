@@ -10,7 +10,7 @@ export async function Footer({ onHome = true }: { onHome?: boolean }) {
   const year = new Date().getFullYear();
   const linkCls = 'inline-flex min-h-touch min-w-touch items-center justify-center text-dark-text-secondary underline-offset-4 hover:underline hover:text-dark-text-primary';
   return (
-    <footer className="cv-defer scene-dark section-x border-t border-dark-surface bg-dark-bg pt-6 pb-8 text-dark-text-secondary">
+    <footer className="scene-dark section-x border-t border-dark-surface bg-dark-bg pt-6 pb-8 text-dark-text-secondary">
       <div className="mx-auto flex max-w-content flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <nav aria-label={m.footer.contactNav}>
           <ul className="flex flex-wrap gap-x-4 gap-y-1 type-small">
