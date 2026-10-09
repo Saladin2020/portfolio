@@ -1,10 +1,10 @@
-import { Briefcase, UserSearch } from 'lucide-react';
 import type { SiteContent } from '@/content';
 import type { Messages } from '@/messages/th';
 import { PillLink } from '@/components/ui/Pill';
 import { ctaAttrs, type CtaLocation } from '@/lib/cta';
 import { buildMailto } from '@/lib/mailto';
 import { cx } from '@/components/ui/cx';
+import { BriefcaseIcon, UserSearchIcon } from '@/components/ui/icons';
 
 type Props = { c: SiteContent; m: Messages; scene: 'light' | 'dark'; location: CtaLocation; headingLevel?: 'h3' };
 
@@ -23,7 +23,7 @@ export function PathCards({ c, m, scene, location }: Props) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <article className={card} aria-labelledby={`${location}-client-title`}>
-        <Briefcase aria-hidden="true" className={icon} />
+        <BriefcaseIcon className={icon} />
         <h3 id={`${location}-client-title`} className={title}>
           {m.paths.clientTitle}
         </h3>
@@ -47,7 +47,7 @@ export function PathCards({ c, m, scene, location }: Props) {
       </article>
 
       <article className={card} aria-labelledby={`${location}-recruiter-title`}>
-        <UserSearch aria-hidden="true" className={icon} />
+        <UserSearchIcon className={icon} />
         <h3 id={`${location}-recruiter-title`} className={title}>
           {m.paths.recruiterTitle}
         </h3>
