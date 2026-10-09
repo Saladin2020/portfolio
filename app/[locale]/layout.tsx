@@ -11,12 +11,10 @@ import { getSiteUrl, isProduction } from '@/lib/site';
 import '@/styles/globals.css';
 
 /**
- * Adds `js` before paint. Anuphan is applied only after load has gone quiet:
- * a class change on <html> restyles the document and lays out every object
- * (~800), and doing that on the LCP task was the post-FCP long task.
- * 8s is after a simulated Lighthouse gather (load, then ~1s of quiet) and
- * still within the visit. Hash targets are re-aligned when the face settles,
- * unless the reader has already scrolled (wheel, touch, or a scroll key).
+ * Adds `js` before paint. Anuphan is a normal font-family stack, not a class
+ * on <html>. After the face settles, re-align a hash target unless the reader
+ * has already scrolled. NEW-03: only wheel, touch, and scroll keys count, so a
+ * scrollbar drag or scrollBy during the swap still gets the corrective align.
  */
 const bootScript =
   "document.documentElement.classList.add('js');" +
@@ -28,9 +26,8 @@ const bootScript =
   'function align(){if(moved)return;var id=location.hash.slice(1);if(!id)return;var el=document.getElementById(id);if(!el)return;' +
   "var root=document.documentElement,prev=root.style.scrollBehavior;root.style.scrollBehavior='auto';el.scrollIntoView({block:'start'});root.style.scrollBehavior=prev;}" +
   'function settle(){requestAnimationFrame(function(){requestAnimationFrame(align);});}' +
-  'addEventListener("load",settle);' +
-  'setTimeout(function(){document.documentElement.classList.add("fonts-active");' +
-  'if(document.fonts){document.fonts.addEventListener("loadingdone",settle);document.fonts.ready.then(settle);}else settle();},8000);})();';
+  'if(document.fonts){document.fonts.addEventListener("loadingdone",settle);document.fonts.ready.then(settle);}' +
+  'addEventListener("load",settle);})();';
 
 export const dynamicParams = false;
 export function generateStaticParams() {
