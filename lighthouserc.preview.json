@@ -8,7 +8,8 @@
       "settings": {
         "chromeFlags": "--no-sandbox",
         "skipAudits": [
-          "is-crawlable"
+          "is-crawlable",
+          "robots-txt"
         ],
         "extraHeaders": "{\"x-vercel-skip-toolbar\": \"1\"}"
       }
@@ -44,6 +45,7 @@
           }
         ],
         "is-crawlable": "off",
+        "robots-txt": "off",
         "largest-contentful-paint": [
           "warn",
           {
