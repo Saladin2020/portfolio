@@ -6,7 +6,7 @@ import { LOCALES } from '@/i18n/config';
 import { getI18n } from '@/i18n/server';
 import { getContent } from '@/content';
 import { SkipLink } from '@/components/layout/SkipLink';
-import { anuphan } from '@/lib/font';
+import { anuphanHeadingLatin, anuphanHeadingThai, anuphanLatin, anuphanThai } from '@/lib/font';
 import { getSiteUrl, isProduction } from '@/lib/site';
 import '@/styles/globals.css';
 
@@ -62,7 +62,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const { locale, m } = await getI18n();
   return (
-    <html lang={locale} className={anuphan.variable} suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={`${anuphanThai.variable} ${anuphanLatin.variable} ${anuphanHeadingThai.variable} ${anuphanHeadingLatin.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         {/* Marks JS availability before paint so JS-only controls never flash (no-JS fallbacks stay usable). */}
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />

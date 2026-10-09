@@ -5,7 +5,7 @@
 @import './generated/tailwind-theme.css';
 
 @theme inline {
-  --font-sans: var(--font-anuphan), "Anuphan Local", var(--font-family-sans);
+  --font-sans: var(--font-anuphan-thai), var(--font-anuphan-latin), "Anuphan Local", var(--font-family-sans);
   --font-mono: var(--font-family-mono);
 }
 
@@ -154,6 +154,11 @@
     line-height: var(--font-line-height-body-th);
     letter-spacing: var(--font-letter-spacing-none);
     overflow-x: clip;
+  }
+  /* LCP element. Optional Anuphan, then the same metric-matched local faces
+     as the body, so a cold visit does not jump when the web face is skipped. */
+  #hero-heading {
+    font-family: var(--font-anuphan-heading-thai), var(--font-anuphan-heading-latin), "Anuphan Local", var(--font-family-sans);
   }
   /* Thai typography (ARCHITECTURE §6.4): roomy line-heights, no tracking on Thai. */
   :lang(th) h1,

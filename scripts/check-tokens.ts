@@ -44,7 +44,12 @@ const generated = ['styles/generated/tokens.css', 'styles/generated/tailwind-the
 const defined = new Set([...generated.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
 const handCss = fs.readFileSync(path.join(root, 'styles/globals.css'), 'utf8');
 for (const m of handCss.matchAll(/(--[\w-]+)\s*:/g)) defined.add(m[1]!);
-const runtime = new Set(['--font-anuphan']);
+const runtime = new Set([
+  '--font-anuphan-thai',
+  '--font-anuphan-latin',
+  '--font-anuphan-heading-thai',
+  '--font-anuphan-heading-latin',
+]);
 for (const file of ['styles/globals.css', ...sources.map((s) => path.relative(root, s))]) {
   const txt = fs.readFileSync(path.join(root, file), 'utf8');
   for (const m of txt.matchAll(/var\((--[\w-]+)/g)) {

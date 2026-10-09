@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { anuphan } from '@/lib/font';
+import { anuphanLatin, anuphanThai } from '@/lib/font';
 import { getSiteUrl } from '@/lib/site';
 import { th } from '@/messages/th';
 import '@/styles/globals.css';
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function GlobalNotFound() {
   return (
-    <html lang="th" className={anuphan.variable}>
+    <html lang="th" className={`${anuphanThai.variable} ${anuphanLatin.variable}`}>
       <body>
         <main id="main" className="section-x section-y grid min-h-dvh place-items-center text-center">
           <div className="flex max-w-copy flex-col items-center gap-3">
