@@ -25,7 +25,7 @@ export function Work({ c, m }: { c: SiteContent; m: Messages }) {
         {total === 0 ? (
           <p className="p-4 text-light-text-secondary">{m.work.empty}</p>
         ) : (
-          <ul className="cv-defer grid gap-3 md:grid-cols-2 lg:gap-4">
+          <ul className="grid gap-3 md:grid-cols-2 lg:gap-4">
             {c.projects.map((p) => (
               <ProjectCard key={p.id} project={p} m={m} />
             ))}

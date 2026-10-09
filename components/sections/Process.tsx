@@ -19,7 +19,6 @@ export function Process({ c, m }: { c: SiteContent; m: Messages }) {
         </>
       }
       intro={m.process.intro}
-      className="cv-defer"
     >
       <ol className="flex flex-col gap-8 lg:gap-12">
         {c.process.map((step, i) => (

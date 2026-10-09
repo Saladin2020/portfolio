@@ -9,7 +9,7 @@ import { PathCards } from './PathCards';
 export function Contact({ c, m }: { c: SiteContent; m: Messages }) {
   const email = c.profile.email;
   return (
-    <Section id="contact" scene="dark" heading={m.contact.heading} intro={m.contact.closing} className="cv-defer lg:pb-section-bottom-last">
+    <Section id="contact" scene="dark" heading={m.contact.heading} intro={m.contact.closing} className="lg:pb-section-bottom-last">
       <div id="contact-email" className="mb-6 flex flex-col gap-2 rounded-panel border border-dark-surface p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:p-6">
         <p className="flex min-w-0 flex-col">
           <span className="type-label text-dark-text-muted">{m.contact.emailLabel}</span>
