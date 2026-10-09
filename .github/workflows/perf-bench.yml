@@ -1,0 +1,111 @@
+# On-demand Lighthouse lab benchmark (DEVOPS-006). workflow_dispatch only.
+# * Mobile defaults: Lighthouse's default config (no --preset=desktop, default simulated throttling),
+#   run N times sequentially; per-run + median table in the job summary.
+# * Inputs are passed ONLY via env and validated by .github/scripts/perf-bench-validate.mjs
+#   (https only; host = production host or *-saladins-projects-00ede424.vercel.app). Never
+#   interpolate ${{ inputs.* }} into run scripts (script injection).
+# * Preview hosts are behind Vercel Authentication: the bypass secret is exposed to the
+#   "Benchmark" step only, and only when the validated host is a preview. Headers go to Lighthouse
+#   via --extra-headers=<0600 file in RUNNER_TEMP>; never echoed or logged.
+# * Raw LHRs contain configSettings.extraHeaders, so they are NEVER uploaded. Only a sanitized
+#   metrics-only JSON is uploaded, after a leak check. Temp files are removed in an always() step.
+name: Perf bench (Lighthouse)
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "https URL: production host or a *-saladins-projects-00ede424.vercel.app preview"
+        required: true
+        type: string
+      runs:
+        description: "Number of sequential Lighthouse runs (clamped to 1..15)"
+        required: false
+        default: "5"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-bench
+  cancel-in-progress: false
+
+env:
+  PROD_URL: ${{ vars.PROD_URL || 'https://portfolio-three-nu-t7xr2qj34b.vercel.app' }}
+  LIGHTHOUSE_VERSION: "13.5.0"
+
+jobs:
+  perf-bench:
+    name: perf-bench
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+
+      - name: Validate inputs
+        id: v
+        env:
+          URL_INPUT: ${{ inputs.url }}
+          RUNS_INPUT: ${{ inputs.runs }}
+        run: node .github/scripts/perf-bench-validate.mjs
+
+      - name: Install Lighthouse ${{ env.LIGHTHOUSE_VERSION }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/perf-bench-tool" --no-save --no-audit --no-fund \
+            "lighthouse@${LIGHTHOUSE_VERSION}" >/dev/null
+          "$RUNNER_TEMP/perf-bench-tool/node_modules/.bin/lighthouse" --version
+
+      - name: Benchmark
+        env:
+          TARGET_URL: ${{ steps.v.outputs.url }}
+          TARGET_KIND: ${{ steps.v.outputs.kind }}
+          RUNS: ${{ steps.v.outputs.runs }}
+          # Secret only for preview hosts, and only in this step.
+          BYPASS: ${{ steps.v.outputs.kind == 'preview' && secrets.VERCEL_AUTOMATION_BYPASS_SECRET || '' }}
+        run: |
+          set -euo pipefail
+          if [ -n "${BYPASS:-}" ]; then echo "::add-mask::${BYPASS}"; fi
+          if [ "$TARGET_KIND" = preview ] && [ -z "${BYPASS:-}" ]; then
+            echo "::error::VERCEL_AUTOMATION_BYPASS_SECRET is not available for a preview host"; exit 1
+          fi
+          umask 077
+          work="$RUNNER_TEMP/perf-bench"; out="$RUNNER_TEMP/perf-bench-out"
+          mkdir -p "$work/lhr" "$out"
+          hdr="$work/headers.json"
+          # Header file built from env inside node: the value never touches argv or logs.
+          node -e '
+            const h = { "x-vercel-skip-toolbar": "1" };
+            if (process.env.TARGET_KIND === "preview") h["x-vercel-protection-bypass"] = process.env.BYPASS;
+            require("fs").writeFileSync(process.argv[1], JSON.stringify(h), { mode: 0o600 });
+          ' "$hdr"
+          lh="$RUNNER_TEMP/perf-bench-tool/node_modules/.bin/lighthouse"
+          for i in $(seq 1 "$RUNS"); do
+            echo "Lighthouse run $i/$RUNS"
+            "$lh" "$TARGET_URL" --quiet --output=json --output-path="$work/lhr/lhr-$i.json" \
+              --extra-headers="$hdr" --chrome-flags="--headless=new --no-sandbox" \
+              || echo "::warning::Lighthouse run $i exited non-zero"
+          done
+          rm -f "$hdr"
+          node .github/scripts/perf-bench-summary.mjs "$work/lhr" "$out/perf-bench-summary.json"
+          # Leak check on the only file that will be uploaded (value + header/cookie names).
+          node .github/scripts/perf-bench-leakcheck.mjs "$out/perf-bench-summary.json" \
+            || { rm -f "$out/perf-bench-summary.json"; exit 1; }
+
+      - name: Upload sanitized summary (metrics only)
+        if: ${{ success() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: perf-bench-summary
+          path: ${{ runner.temp }}/perf-bench-out/perf-bench-summary.json
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Remove temp files
+        if: ${{ always() }}
+        run: rm -rf "$RUNNER_TEMP/perf-bench" "$RUNNER_TEMP/perf-bench-out" "$RUNNER_TEMP/perf-bench-tool"
