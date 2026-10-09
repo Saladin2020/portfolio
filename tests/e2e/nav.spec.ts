@@ -55,6 +55,36 @@ test.describe('global nav and page structure (S-0, AC-NAV-*, AC-A11Y-02, AC-HERO
     await expect(page).toHaveURL(/#contact$/);
   });
 
+  test('mobile menu section links land on the designed offset', async ({ page }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 1440, 'viewports are set inside this test');
+    const sections = ['work', 'process', 'skills', 'about', 'contact'] as const;
+    // 148px is the designed heading top below lg (deeplink.spec / AC-NAV-02).
+    for (const viewport of [
+      { width: 360, height: 640 },
+      { width: 768, height: 900 },
+    ] as const) {
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+      await page.evaluate(() => document.fonts.ready);
+      for (const id of sections) {
+        await page.locator('[data-nav="menu-button"]').click();
+        await page.locator(`dialog[open] a[data-nav-link="${id}"]`).click();
+        await expect(page).toHaveURL(new RegExp(`#${id}$`));
+        const heading = page.locator(`#${id}-heading`);
+        await expect
+          .poll(async () => heading.evaluate((el) => Math.abs(Math.round(el.getBoundingClientRect().top) - 148)), {
+            timeout: 3_000,
+          })
+          .toBeLessThanOrEqual(4);
+        // The old bug landed on target, then a smooth scroll computed while the
+        // menu was open pulled the heading down to 465 / 595.
+        await page.waitForTimeout(800);
+        const top = await heading.evaluate((el) => Math.round(el.getBoundingClientRect().top));
+        expect(Math.abs(top - 148), `#${id} @ ${viewport.width}×${viewport.height}`).toBeLessThanOrEqual(4);
+      }
+    }
+  });
+
   test('footer shows email, GitHub, LinkedIn and copyright; no language switch', async ({ page }) => {
     await page.goto('/');
     const footer = page.locator('footer');
