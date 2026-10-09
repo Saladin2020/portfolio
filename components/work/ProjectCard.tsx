@@ -23,7 +23,7 @@ export function ProjectCard({ project, m }: { project: RenderedProject; m: Messa
         <div className="flex flex-1 flex-col gap-2 p-4">
           <Chip className="self-start">{m.work.categories[project.category]}</Chip>
           <h3 className="type-h3 text-light-text-heading">
-            <a href={href} data-project-link={project.id} className="underline-offset-4 hover:underline" {...ctaAttrs('work_open_detail')}>
+            <a href={href} data-project-link={project.id} className="inline-block min-h-touch min-w-touch max-w-full underline-offset-4 hover:underline" {...ctaAttrs('work_open_detail')}>
               {t.title}
             </a>
           </h3>

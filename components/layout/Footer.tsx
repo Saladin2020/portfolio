@@ -8,7 +8,7 @@ export async function Footer({ onHome = true }: { onHome?: boolean }) {
   const { locale, m } = await getI18n();
   const { profile } = getContent(locale);
   const year = new Date().getFullYear();
-  const linkCls = 'inline-flex min-h-touch items-center text-dark-text-secondary underline-offset-4 hover:underline hover:text-dark-text-primary';
+  const linkCls = 'inline-flex min-h-touch min-w-touch items-center justify-center text-dark-text-secondary underline-offset-4 hover:underline hover:text-dark-text-primary';
   return (
     <footer className="scene-dark section-x border-t border-dark-surface bg-dark-bg pt-6 pb-8 text-dark-text-secondary">
       <div className="mx-auto flex max-w-content flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
