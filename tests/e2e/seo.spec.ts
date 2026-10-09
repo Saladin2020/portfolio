@@ -45,7 +45,11 @@ test.describe('SEO and meta (S-8, AC-SEO-*)', () => {
     expect(person.name).toBe('Salahuddin Benno');
     expect(person.alternateName).toContain('ซอลาฮุดดีน เบนโน');
     expect(person.email).toBe('mailto:negaton.app@gmail.com');
-    expect(person.sameAs).toEqual(['https://github.com/Saladin2020', 'https://www.linkedin.com/in/salahuddin-benno-9b7419b9']);
+    expect(person.sameAs).toEqual([
+      'https://github.com/Saladin2020',
+      'https://www.linkedin.com/in/salahuddin-benno-9b7419b9',
+      'https://www.facebook.com/negaton.man',
+    ]);
     expect(person.knowsAbout).toContain('Next.js');
     expect((await request.get(new URL(person.image).pathname)).status()).toBe(200);
   });

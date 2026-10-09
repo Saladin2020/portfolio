@@ -33,11 +33,26 @@ export function PathCards({ c, m, scene, location }: Props) {
             {m.paths.clientPrimary}
           </PillLink>
           {p.links.hire.map((h) => (
-            <PillLink key={h.id} href={h.url} external variant="secondary" scene={scene} {...ctaAttrs('path_client_hire_platform', location)}>
-              {m.paths.hirePrefix} {(p.hireLabels as Record<string, string>)[h.id] ?? h.id}
+            <PillLink
+              key={h.id}
+              href={h.url}
+              external
+              variant="secondary"
+              scene={scene}
+              className="max-w-full min-w-0 whitespace-normal"
+              {...ctaAttrs('path_client_hire_platform', location)}
+            >
+              {p.hireCta?.[h.id] ?? `${m.paths.hirePrefix} ${p.hireLabels[h.id] ?? h.id}`}
             </PillLink>
           ))}
         </div>
+        {p.links.hire.map((h) =>
+          p.hireHelper?.[h.id] ? (
+            <p key={`${h.id}-helper`} className={cx('type-small break-words', text)}>
+              {p.hireHelper[h.id]}
+            </p>
+          ) : null,
+        )}
         <p className={cx('type-small', text)}>
           {m.paths.noMailHelper}{' '}
           <a href="#contact-email" className={cx('inline-flex min-h-touch min-w-touch items-center underline underline-offset-4', scene === 'light' ? 'text-light-text-link' : 'text-dark-text-link')}>

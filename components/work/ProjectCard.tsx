@@ -30,6 +30,9 @@ export function ProjectCard({ project, m }: { project: RenderedProject; m: Messa
           <p className="text-light-text-secondary">
             <span className="font-medium text-light-text-primary">{m.work.problem}:</span> {t.problem}
           </p>
+          <p className="break-words text-light-text-secondary">
+            <span className="font-medium text-light-text-primary">{m.work.result}:</span> {t.result}
+          </p>
           <p className="text-light-text-secondary">
             <span className="font-medium text-light-text-primary">{m.work.role}:</span> {t.role}
           </p>

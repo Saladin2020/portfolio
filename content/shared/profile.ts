@@ -3,7 +3,8 @@ import photo from '@/assets/images/profile/photo.jpg';
 
 /**
  * Locale-neutral profile facts, as provided by the site owner (2026-10-09).
- * Not provided → omitted (UI hidden): hire-platform links (C-23), resume PDF (C-24), availability (C-26).
+ * Resume PDF (C-24) is still omitted, so that CTA stays hidden.
+ * Availability and the Facebook contact link are the PO-approved GATE 4 copy.
  */
 export const profile = {
   nameEn: 'Salahuddin Benno',
@@ -11,8 +12,9 @@ export const profile = {
   links: {
     github: 'https://github.com/Saladin2020',
     linkedin: 'https://www.linkedin.com/in/salahuddin-benno-9b7419b9',
-    hire: [],
+    hire: [{ id: 'facebook', url: 'https://www.facebook.com/negaton.man' }],
   },
   photo,
   photoPublicPath: '/images/profile.jpg', // 600 px copy at a stable URL for JSON-LD / OG consumers
+  availability: 'both',
 } satisfies ProfileData;

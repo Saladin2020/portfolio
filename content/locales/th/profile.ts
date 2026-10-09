@@ -20,8 +20,11 @@ export const profileText = {
   availabilityLabel: {
     freelance: 'รับงานฟรีแลนซ์',
     'full-time': 'เปิดรับงานประจำ',
-    both: 'รับทั้งงานฟรีแลนซ์และงานประจำ',
+    both: 'รับฟรีแลนซ์ + งานประจำ',
     'not-available': 'ยังไม่รับงานใหม่ในตอนนี้',
   },
-  hireLabels: {},
+  availabilityDetail: 'รับฟรีแลนซ์ + เปิดรับงานประจำ · รับงานได้ตั้งแต่เดือน ก.พ.–มี.ค., พ.ค.–ก.ย., พ.ย. ทุกวันที่ 5–15',
+  hireLabels: { facebook: 'Facebook' },
+  hireCta: { facebook: 'จ้างงานหรือติดต่อผ่าน Facebook' },
+  hireHelper: { facebook: 'ส่งข้อความคุยรายละเอียดงานได้ทาง Facebook' },
 } satisfies ProfileText;

@@ -86,7 +86,13 @@ test.describe('responsive (AC-RESP-01, AC-NAV-03, AC-HERO-03)', () => {
     test.skip(widthOf(testInfo) !== 360, 'measured on the touch layout');
     await page.goto('/');
     const boxes = await page.evaluate(() => {
-      const groups = ['#work h3 a[data-project-link]', '#site-sections a', 'a[href="#contact-email"]'];
+      const groups = [
+        '#work h3 a[data-project-link]',
+        '#site-sections a',
+        'a[href="#contact-email"]',
+        'a[href="https://www.facebook.com/negaton.man"]',
+        'a[href="#availability-detail"]',
+      ];
       return groups.flatMap((sel) =>
         [...document.querySelectorAll<HTMLElement>(sel)].map((el) => {
           const r = el.getBoundingClientRect();
@@ -94,7 +100,7 @@ test.describe('responsive (AC-RESP-01, AC-NAV-03, AC-HERO-03)', () => {
         }),
       );
     });
-    expect(boxes.length).toBeGreaterThanOrEqual(4 + 4 + 2);
+    expect(boxes.length).toBeGreaterThanOrEqual(4 + 4 + 2 + 4 + 1);
     for (const b of boxes) {
       expect(b.h, `${b.text} height`).toBeGreaterThanOrEqual(44);
       expect(b.w, `${b.text} width`).toBeGreaterThanOrEqual(44);

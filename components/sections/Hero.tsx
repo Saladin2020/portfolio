@@ -40,12 +40,14 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
       </div>
 
       <div className="relative order-1 mx-auto flex max-w-copy flex-col items-center text-center motion-entrance sm:order-2">
-        {/* Availability badge is hidden until the PO states it (C-26). */}
         {availability && (
-          <p className="mb-3 inline-flex items-center gap-1-5 rounded-full border border-light-border-subtle bg-light-surface px-3 py-1 type-small text-light-text-secondary">
-            <span aria-hidden="true" className="size-1-5 rounded-full bg-status-success" />
+          <a
+            href="#availability-detail"
+            className="mb-3 inline-flex min-h-touch max-w-full items-center gap-1-5 rounded-full border border-light-border-subtle bg-light-surface px-3 type-small text-light-text-secondary"
+          >
+            <span aria-hidden="true" className="size-1-5 shrink-0 rounded-full bg-status-success" />
             {m.hero.availabilityPrefix} {availability}
-          </p>
+          </a>
         )}
         <p className="type-lead text-light-text-heading">
           {p.displayName ?? p.fullName}{' '}
@@ -69,6 +71,20 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
           <PillLink href="#contact" variant="secondary" className="px-6 max-sm:flex-1" {...ctaAttrs('hero_contact')}>
             {m.hero.contact}
           </PillLink>
+          {p.links.hire
+            .filter((h) => h.id === 'facebook')
+            .map((h) => (
+              <PillLink
+                key={h.id}
+                href={h.url}
+                external
+                variant="secondary"
+                className="max-w-full min-w-0 whitespace-normal px-6 max-sm:w-full"
+                {...ctaAttrs('hero_facebook')}
+              >
+                {p.hireCta?.[h.id] ?? p.hireLabels[h.id] ?? h.id}
+              </PillLink>
+            ))}
         </div>
         <span aria-hidden="true" className="motion-scroll-cue motion-bob mt-8 hidden text-light-text-secondary lg:block">
           ↓

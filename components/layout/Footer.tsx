@@ -32,7 +32,7 @@ export async function Footer({ onHome = true }: { onHome?: boolean }) {
             {profile.links.hire.map((h) => (
               <li key={h.id}>
                 <ExternalLink href={h.url} className={linkCls}>
-                  {(profile.hireLabels as Record<string, string>)[h.id] ?? h.id}
+                  {profile.hireLabels[h.id] ?? h.id}
                 </ExternalLink>
               </li>
             ))}
