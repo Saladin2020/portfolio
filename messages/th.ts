@@ -36,6 +36,7 @@ export const th = {
     empty: 'ยังไม่มีผลงานในหมวดนี้',
     viewDetails: 'ดูรายละเอียด',
     problem: 'โจทย์',
+    result: 'ผลลัพธ์',
     solution: 'วิธีแก้',
     role: 'บทบาท',
     tech: 'เทคโนโลยี',

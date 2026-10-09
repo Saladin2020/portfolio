@@ -31,13 +31,20 @@ export function About({ c, m }: { c: SiteContent; m: Messages }) {
           </p>
           <p>{p.bio}</p>
           {availability && (
-            <p className="flex flex-wrap items-center gap-1-5">
-              <span className="type-label text-light-text-secondary">{m.about.availability}:</span>
-              <span className="inline-flex items-center gap-1-5 rounded-full border border-light-border-subtle bg-light-surface px-2 py-0-5">
-                <span aria-hidden="true" className="size-1-5 rounded-full bg-status-success" />
-                {availability}
-              </span>
-            </p>
+            <div className="flex max-w-full flex-col gap-1-5">
+              <p className="flex flex-wrap items-center gap-1-5">
+                <span className="type-label text-light-text-secondary">{m.about.availability}:</span>
+                <span className="inline-flex items-center gap-1-5 rounded-full border border-light-border-subtle bg-light-surface px-2 py-0-5">
+                  <span aria-hidden="true" className="size-1-5 rounded-full bg-status-success" />
+                  {availability}
+                </span>
+              </p>
+              {p.availabilityDetail && (
+                <p id="availability-detail" className="break-words">
+                  {p.availabilityDetail}
+                </p>
+              )}
+            </div>
           )}
           <ul className="flex flex-wrap gap-2 type-label">
             <li>

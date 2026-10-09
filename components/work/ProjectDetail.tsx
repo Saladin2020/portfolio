@@ -59,6 +59,11 @@ export function ProjectDetail({ project, m, headingLevel, idPrefix }: Props) {
         </section>
       </div>
 
+      <section>
+        <Sub className={subCls}>{m.work.result}</Sub>
+        <p className="mt-1 break-words">{t.result}</p>
+      </section>
+
       <dl className="grid gap-3 md:grid-cols-2">
         <div>
           <dt className="type-label text-light-text-secondary">{m.work.role}</dt>

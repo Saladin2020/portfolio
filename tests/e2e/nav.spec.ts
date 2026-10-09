@@ -81,8 +81,10 @@ test.describe('global nav and page structure (S-0, AC-NAV-*, AC-A11Y-02, AC-HERO
     for (const id of ['hero_view_work', 'hero_contact', 'path_client_start_project', 'path_recruiter_linkedin', 'path_recruiter_github', 'contact_copy_email', 'work_open_detail']) {
       expect(await page.locator(`[data-cta="${id}"]`).count(), id).toBeGreaterThan(0);
     }
-    // Resume CTA is hidden entirely until a PDF exists (PO decision); no hire-platform links were provided.
-    await expect(page.locator('[data-cta="path_recruiter_resume"], [data-cta="path_client_hire_platform"]')).toHaveCount(0);
+    // Resume CTA stays hidden until a PDF exists. Facebook is the approved hire/contact link (paths + contact).
+    await expect(page.locator('[data-cta="path_recruiter_resume"]')).toHaveCount(0);
+    await expect(page.locator('[data-cta="path_client_hire_platform"]')).toHaveCount(2);
+    await expect(page.locator('[data-cta="hero_facebook"]')).toHaveCount(1);
     for (const loc of ['paths', 'contact']) {
       await expect(page.locator(`[data-cta="path_client_start_project"][data-cta-location="${loc}"]`)).toHaveCount(1);
     }

@@ -6,6 +6,7 @@
 export type CtaId =
   | 'hero_view_work'
   | 'hero_contact'
+  | 'hero_facebook'
   | 'path_client_start_project'
   | 'path_client_hire_platform'
   | 'path_recruiter_resume'

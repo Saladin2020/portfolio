@@ -1,11 +1,13 @@
 import type { ProcessStepId, ProcessStepText } from '../../schema';
 
 /**
- * Step titles: UX microcopy. Descriptions only where the project notes / owner decisions back them;
- * "idea" has no source fact, so its description is omitted (title only).
+ * Step titles: UX microcopy. The idea description is the PO-approved GATE 4 line.
  */
 export const processText = {
-  idea: { title: 'ไอเดีย' },
+  idea: {
+    title: 'ไอเดีย',
+    description: 'ตั้งเป้าตั้งแต่ขั้นไอเดียว่างานต้องถูกต้องและใช้งานได้จริง ก่อนเริ่มออกแบบและลงมือสร้าง',
+  },
   design: {
     title: 'ออกแบบ',
     description: 'ออกแบบหน้าจอด้วย Tailwind CSS และคอมโพเนนต์ shadcn/ui / Radix UI รองรับธีมสว่าง–มืดและภาษาไทย',

@@ -54,6 +54,13 @@ function scan(label: string, value: unknown): void {
 
 check('shared/profile', profileDataSchema, profile);
 check('th/profile', profileTextSchema, profileText);
+const hireLabels = profileText.hireLabels as Record<string, string>;
+for (const h of profile.links.hire) {
+  if (!hireLabels[h.id]?.trim()) errors.push(`th/profile.hireLabels.${h.id}: missing label`);
+}
+if (profile.availability && !profileText.availabilityDetail?.trim()) {
+  errors.push('th/profile.availabilityDetail: required when availability is set');
+}
 check('th/process', processTextSchema, processText);
 check('th/site', siteTextSchema, siteText);
 
@@ -70,6 +77,7 @@ for (const p of projects) {
     continue;
   }
   check(`th/projects[${p.id}]`, projectTextSchema, t);
+  if (p.permission !== 'no' && !t.result?.trim()) errors.push(`th/projects[${p.id}].result: every shown project needs a result`);
   for (const img of p.images) if (!t.imageAlt[img.key]) errors.push(`th/projects[${p.id}].imageAlt.${img.key}: missing alt (AC-WORK-08)`);
   if (p.links.source) errors.push(`projects[${p.id}].links.source: repos are private, live links only (PO decision Q-G1)`);
 }

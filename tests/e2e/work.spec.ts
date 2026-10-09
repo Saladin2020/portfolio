@@ -80,6 +80,25 @@ test.describe('featured work: filter + project detail (S-3, S-3b, AC-WORK-*)', (
     }
   });
 
+  test('dialog: Escape returns to /#work even when the history entry has no Next state', async ({ page }, testInfo) => {
+    test.skip((testInfo.project.use.viewport?.width ?? 0) !== 1440, 'history behaviour is independent of viewport');
+    await page.goto('/#work');
+    // Hydration normally writes __NA a moment after load. A click in that window is what preview hit.
+    await page.evaluate(() => history.replaceState(null, '', location.href));
+    const trigger = page.locator('a[data-project-link="p3"]').first();
+    await trigger.scrollIntoViewIfNeeded();
+    await trigger.click();
+    const dialog = page.locator('#project-dialog-p3');
+    await expect(dialog).toBeVisible();
+    await expect(page).toHaveURL(/\/work\/p3$/);
+    await expect(page.locator('#hero-heading')).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL(/\/#work$/);
+    await expect(trigger).toBeFocused();
+    await expect(page.locator('#hero-heading')).toHaveCount(1);
+  });
+
   test('dialog: browser Back closes it; Forward reopens it; close button works', async ({ page }) => {
     await page.goto('/');
     const trigger = page.locator('a[data-project-link="labwise"]').first();
@@ -112,7 +131,7 @@ test.describe('featured work: filter + project detail (S-3, S-3b, AC-WORK-*)', (
     await context.close();
   });
 
-  test('cards show title, category, brief, role, tech, image with alt; live links only, no Results', async ({ page }) => {
+  test('cards show title, category, brief, role, result, tech, image with alt; live links only', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#work li[data-category]')).toHaveCount(4);
     for (const [slug, category] of [['memo', 'web'], ['p3', 'app'], ['labwise', 'program'], ['signal-controlbridge', 'program']] as const) {
@@ -120,19 +139,20 @@ test.describe('featured work: filter + project detail (S-3, S-3b, AC-WORK-*)', (
       await expect(card).toHaveAttribute('data-category', category);
       await expect(card.locator('h3')).toHaveCount(1);
       await expect(card.locator('img')).toHaveAttribute('alt', /.{10,}/);
+      await expect(card).toContainText('ผลลัพธ์');
       await expect(card).toContainText('บทบาท');
       await expect(card).toContainText('AI agents (Cursor / Claude)');
       await expect(card.locator('a[target="_blank"][href$=".vercel.app/"]')).toHaveCount(1);
     }
     // Login-only apps say so next to the live link.
     await expect(page.locator('#work li[data-category]').filter({ has: page.locator('a[data-project-link="labwise"]') })).toContainText('ต้องเข้าสู่ระบบ');
-    // Repos are private: no source links anywhere; Results field removed.
+    // Repos are private: no source links anywhere.
     await expect(page.locator('[data-link-kind="source"], a[href*="github.com/Saladin2020/"]')).toHaveCount(0);
     // Detail markup is fetched on open, not inlined in the home document.
     await page.locator('a[data-project-link="labwise"]').first().click();
     const detail = page.locator('#project-dialog-labwise');
     await expect(detail).toBeVisible();
-    await expect(detail.locator('h3', { hasText: 'ผลลัพธ์' })).toHaveCount(0);
+    await expect(detail.getByRole('heading', { name: 'ผลลัพธ์' })).toBeVisible();
     await expect(detail.locator('[data-link-kind="live"]')).toHaveCount(1);
     await expect(detail.locator('img')).toHaveCount(3);
   });

@@ -35,7 +35,7 @@ export interface ProfileData {
   photo: StaticImageData; // C-04
   photoPublicPath: `/images/${string}`;
   resume?: { path: `/resume/${string}.pdf`; bytes: number }; // C-24 (omitted until the PDF exists → CTA hidden)
-  availability?: Availability; // C-26 (omitted until the PO states it → badge hidden)
+  availability?: Availability; // C-26
 }
 
 export interface ProjectData {
@@ -73,8 +73,14 @@ export interface ProfileText {
   roleCity?: Text; // C-28 (hidden when absent)
   photoAlt: Text;
   availabilityLabel: Record<Availability, Text>;
+  /** Full availability sentence shown with the short badge. */
+  availabilityDetail?: Text;
   rolePreferences?: readonly Text[]; // C-28
-  hireLabels: Record<string, Text>; // label per ProfileData.links.hire[].id
+  hireLabels: Record<string, Text>; // short label per ProfileData.links.hire[].id
+  /** Exact CTA text per hire id (client path, Contact, hero). */
+  hireCta?: Record<string, Text>;
+  /** Optional sentence under that CTA. */
+  hireHelper?: Record<string, Text>;
 }
 
 export interface ProjectText {
@@ -84,9 +90,9 @@ export interface ProjectText {
   role: Text; // C-16
   /** Short note shown next to the live link, e.g. that the app needs a login. */
   liveNote?: Text;
+  /** Qualitative result line (label: ผลลัพธ์). Required for every shown project. */
+  result: Text;
   imageAlt: Record<string, Text>;
-  // C-12 Result was removed: no verified outcomes exist, and none are invented.
-
 }
 
 export interface ProcessStepText {
@@ -150,6 +156,7 @@ export const projectTextSchema = z
     solution: z.string().min(1),
     role: z.string().min(1),
     liveNote: z.string().min(1).optional(),
+    result: z.string().min(1),
     imageAlt: z.record(z.string(), z.string().min(1)),
   })
   .strict();
@@ -165,8 +172,11 @@ export const profileTextSchema = z.object({
   roleCity: z.string().min(1).optional(),
   photoAlt: z.string().min(1),
   availabilityLabel: z.record(z.enum(AVAILABILITY), z.string().min(1)),
+  availabilityDetail: z.string().min(1).optional(),
   rolePreferences: z.array(z.string()).optional(),
   hireLabels: z.record(z.string(), z.string().min(1)),
+  hireCta: z.record(z.string(), z.string().min(1)).optional(),
+  hireHelper: z.record(z.string(), z.string().min(1)).optional(),
 });
 
 export const processTextSchema = z.record(
