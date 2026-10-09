@@ -13,8 +13,10 @@ export function Contact({ c, m }: { c: SiteContent; m: Messages }) {
       <div id="contact-email" className="mb-6 flex flex-col gap-2 rounded-panel border border-dark-surface p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:p-6">
         <p className="flex min-w-0 flex-col">
           <span className="type-label text-dark-text-muted">{m.contact.emailLabel}</span>
-          <a id="contact-email-text" href={`mailto:${email}`} className="type-h3 break-all text-dark-text-primary underline-offset-4 hover:underline">
-            {email}
+          <a id="contact-email-text" href={`mailto:${email}`} className="type-h3 text-dark-text-primary underline-offset-4 hover:underline">
+            {email.slice(0, email.indexOf('@') + 1)}
+            <wbr />
+            {email.slice(email.indexOf('@') + 1)}
           </a>
         </p>
         <CopyEmailButton

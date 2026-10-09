@@ -174,6 +174,14 @@
   background-color: var(--color-base-black-a10);
   backdrop-filter: blur(var(--space-0-5));
 }
+/* Mobile load trace: backdrop-filter on the open dialog's layer is extra paint. The sticky nav
+   drops its blur below sm (solid surface). Closed dialogs are not in the home document. */
+@media (width < theme(--breakpoint-sm)) {
+  .project-dialog::backdrop {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
 @media (width < theme(--breakpoint-lg)) {
   .project-dialog {
     width: 100%;
@@ -241,6 +249,16 @@ body:has(dialog[open]) {
       background-color var(--transition-hover),
       color var(--transition-hover);
   }
+  /* Mobile trace: shimmer (background-position) and view-timeline reveals were the paint cost.
+     The single hero entrance stays, so motion is still present. */
+  @media (width < theme(--breakpoint-sm)) {
+    .motion-shimmer,
+    .motion-reveal,
+    .motion-bob {
+      animation: none;
+      animation-timeline: auto;
+    }
+  }
   /* Dialog open/close (native <dialog> + @starting-style). */
   .project-dialog,
   .project-dialog::backdrop {
@@ -296,4 +314,11 @@ body:has(dialog[open]) {
     backdrop-filter: none;
     background-color: var(--color-light-surface);
   }
+}
+
+/* Skip link: `not-sr-only` resets padding to 0, which lets Thai tone marks touch the pill (BUG-09). */
+.skip-link:focus {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  top: calc(var(--size-nav-pill-height-desktop) + var(--space-3) + var(--space-3));
 }

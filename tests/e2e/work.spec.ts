@@ -99,7 +99,10 @@ test.describe('featured work: filter + project detail (S-3, S-3b, AC-WORK-*)', (
     await expect(page.locator('#work li[data-category]').filter({ has: page.locator('a[data-project-link="labwise"]') })).toContainText('ต้องเข้าสู่ระบบ');
     // Repos are private: no source links anywhere; Results field removed.
     await expect(page.locator('[data-link-kind="source"], a[href*="github.com/Saladin2020/"]')).toHaveCount(0);
+    // Detail markup is fetched on open, not inlined in the home document.
+    await page.locator('a[data-project-link="labwise"]').first().click();
     const detail = page.locator('#project-dialog-labwise');
+    await expect(detail).toBeVisible();
     await expect(detail.locator('h3', { hasText: 'ผลลัพธ์' })).toHaveCount(0);
     await expect(detail.locator('[data-link-kind="live"]')).toHaveCount(1);
     await expect(detail.locator('img')).toHaveCount(3);

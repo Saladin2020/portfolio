@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { SiteContent } from '@/content';
 import type { Messages } from '@/messages/th';
 import { PillLink } from '@/components/ui/Pill';
@@ -10,9 +11,9 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
   const availability = 'availability' in p && p.availability && isKnownAvailability(p.availability) ? p.availabilityLabel[p.availability] : undefined;
   const thumbs = c.projects.slice(0, 3).map((pr) => pr.images[0]!.src);
   return (
-    <section id="top" aria-labelledby="hero-heading" className="section-x relative overflow-hidden pt-4 pb-11 lg:pt-11 lg:pb-12">
+    <section id="top" aria-labelledby="hero-heading" className="section-x relative flex flex-col overflow-hidden pt-4 pb-11 lg:pt-11 lg:pb-12">
       {/* Decorative thumbnails of the PO's own projects (hidden from AT, AC-HERO-04). */}
-      <div aria-hidden="true" className="pointer-events-none mx-auto flex max-sm:hidden max-w-copy justify-center xl:max-w-none gap-2 pb-4 xl:absolute xl:inset-0 xl:block xl:pb-0">
+      <div aria-hidden="true" className="pointer-events-none order-1 mx-auto flex max-sm:hidden max-w-copy justify-center xl:max-w-none gap-2 pb-4 xl:absolute xl:inset-0 xl:block xl:pb-0">
         {/* Real files load only at ≥ sm (640px). Mobile Lighthouse must not fetch these decorative thumbs. */}
         <style
           dangerouslySetInnerHTML={{
@@ -38,7 +39,7 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
         ))}
       </div>
 
-      <div className="relative mx-auto flex max-w-copy flex-col items-center text-center motion-entrance">
+      <div className="relative order-1 mx-auto flex max-w-copy flex-col items-center text-center motion-entrance sm:order-2">
         {/* Availability badge is hidden until the PO states it (C-26). */}
         {availability && (
           <p className="mb-3 inline-flex items-center gap-1-5 rounded-full border border-light-border-subtle bg-light-surface px-3 py-1 type-small text-light-text-secondary">
@@ -72,6 +73,23 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
         <span aria-hidden="true" className="motion-scroll-cue motion-bob mt-8 hidden text-light-text-secondary lg:block">
           ↓
         </span>
+      </div>
+
+      {/* Below 640px the thumbs stack under the CTAs (BUG-06). Small, lazy, and low priority so the h1 stays LCP. */}
+      <div aria-hidden="true" className="order-2 mx-auto flex w-full max-w-copy flex-col items-center gap-3 pt-6 sm:hidden">
+        {thumbs.map((src, i) => (
+          <Image
+            key={i}
+            src={src}
+            alt=""
+            width={176}
+            height={110}
+            sizes="176px"
+            loading="lazy"
+            fetchPriority="low"
+            className="pointer-events-none aspect-16/10 h-auto w-44 rounded-element border border-light-border-subtle object-cover shadow-card"
+          />
+        ))}
       </div>
     </section>
   );

@@ -34,6 +34,25 @@ test.describe('responsive (AC-RESP-01, AC-NAV-03, AC-HERO-03)', () => {
     }
   });
 
+  test('touch targets are at least 44×44 on the touch layout (AC-RESP-03)', async ({ page }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 360, 'measured on the touch layout');
+    await page.goto('/');
+    const boxes = await page.evaluate(() => {
+      const groups = ['#work h3 a[data-project-link]', '#site-sections a', 'a[href="#contact-email"]'];
+      return groups.flatMap((sel) =>
+        [...document.querySelectorAll<HTMLElement>(sel)].map((el) => {
+          const r = el.getBoundingClientRect();
+          return { sel, text: (el.textContent ?? '').trim().slice(0, 24), w: r.width, h: r.height };
+        }),
+      );
+    });
+    expect(boxes.length).toBeGreaterThanOrEqual(4 + 4 + 2);
+    for (const b of boxes) {
+      expect(b.h, `${b.text} height`).toBeGreaterThanOrEqual(44);
+      expect(b.w, `${b.text} width`).toBeGreaterThanOrEqual(44);
+    }
+  });
+
   test('body text is at least 16px (AC-RESP-04)', async ({ page }) => {
     await page.goto('/');
     const size = await page.evaluate(() => parseFloat(getComputedStyle(document.body).fontSize));
