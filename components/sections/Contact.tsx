@@ -1,8 +1,8 @@
 import type { SiteContent } from '@/content';
 import type { Messages } from '@/messages/th';
 import { Section } from '@/components/layout/Section';
+import { CopyEmailButton } from '@/components/ui/CopyEmailButton';
 import { TOAST_VISIBLE_MS } from '@/lib/tokens';
-import { cx } from '@/components/ui/cx';
 import { PathCards } from './PathCards';
 
 /** S-7 Contact (dark closing panel): visible email + copy button (AC-CON-05), repeated paths (AC-CON-03). */
@@ -19,25 +19,15 @@ export function Contact({ c, m }: { c: SiteContent; m: Messages }) {
             {email.slice(email.indexOf('@') + 1)}
           </a>
         </p>
-        <span className="relative inline-flex flex-col items-start gap-1">
-          <button
-            type="button"
-            data-copy-email={email}
-            data-copied={m.contact.copied}
-            data-fallback={m.contact.copyFallback}
-            data-copy-target="contact-email-text"
-            data-toast={TOAST_VISIBLE_MS}
-            aria-label={`${m.contact.copy} ${email}`}
-            data-cta="contact_copy_email"
-            className={cx(
-              'motion-hover inline-flex min-h-touch items-center justify-center rounded-full border-2 px-3 py-1 type-label',
-              'border-dark-action-secondary-border text-dark-action-secondary-text hover:bg-dark-surface',
-            )}
-          >
-            {m.contact.copy}
-          </button>
-          <span role="status" aria-live="polite" data-copy-status className="type-small text-dark-text-secondary" />
-        </span>
+        <CopyEmailButton
+          email={email}
+          label={m.contact.copy}
+          copiedLabel={m.contact.copied}
+          fallbackLabel={m.contact.copyFallback}
+          targetId="contact-email-text"
+          scene="dark"
+          toastMs={TOAST_VISIBLE_MS}
+        />
       </div>
       <PathCards c={c} m={m} scene="dark" location="contact" />
     </Section>
