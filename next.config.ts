@@ -58,6 +58,7 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      { source: '/favicon.ico', destination: '/icon.svg', permanent: true },
       { source: '/th', destination: '/', permanent: true },
       { source: '/th/work/:slug', destination: '/work/:slug', permanent: true },
       { source: '/work', destination: '/#work', permanent: true },

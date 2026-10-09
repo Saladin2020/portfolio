@@ -15,12 +15,12 @@ export async function SiteNav({ onHome = true }: { onHome?: boolean }) {
     <header className="sticky top-0 z-40 section-x pt-3">
       <nav
         aria-label={m.nav.label}
-        className="nav-pill relative mx-auto flex min-h-nav-mobile max-w-nav items-center justify-between gap-3 rounded-full border border-light-border-subtle bg-light-surface/85 py-1 pr-1 pl-3 shadow-low backdrop-blur-md lg:min-h-nav-desktop lg:pl-4"
+        className="nav-pill relative mx-auto flex min-h-nav-mobile max-w-nav items-center justify-between gap-3 rounded-full border border-light-border-subtle bg-light-surface py-1 pr-1 pl-3 shadow-low backdrop-blur-none sm:bg-light-surface/85 sm:backdrop-blur-md lg:min-h-nav-desktop lg:pl-4"
       >
         <a
           href={onHome ? '#top' : '/'}
           className="flex min-h-touch min-w-0 items-center gap-1-5 type-label text-light-text-heading no-underline"
-          aria-label={`${name}, ${m.nav.homeSuffix}`}
+          aria-label={`SB, ${name}, ${m.nav.homeSuffix}`}
         >
           <span aria-hidden="true" className="grid size-touch shrink-0 place-items-center rounded-full bg-light-action-primary-bg type-small font-semibold text-light-action-primary-text">
             SB

@@ -40,7 +40,7 @@ export function PathCards({ c, m, scene, location }: Props) {
         </div>
         <p className={cx('type-small', text)}>
           {m.paths.noMailHelper}{' '}
-          <a href="#contact-email" className={cx('underline underline-offset-4', scene === 'light' ? 'text-light-text-link' : 'text-dark-text-link')}>
+          <a href="#contact-email" className={cx('inline-flex min-h-touch min-w-touch items-center underline underline-offset-4', scene === 'light' ? 'text-light-text-link' : 'text-dark-text-link')}>
             {m.contact.copy}
           </a>
         </p>
