@@ -234,6 +234,8 @@ jobs:
           name: next-build
           path: .next
       # Lab run against the local production build. lighthouserc.json starts `npm start`.
+      # is-crawlable is skipped only in that localhost config: non-production robots.txt
+      # disallows crawling, and the SEO category would otherwise stay under 0.9.
       # Mobile preset (Lighthouse default throttling), 3 runs, median asserted. Field CWV are
       # out of scope on Hobby without Speed Insights Plus (AD-2), so lab is the gate.
       # @lhci/cli is used directly (not treosh/lighthouse-ci-action) so it works with either

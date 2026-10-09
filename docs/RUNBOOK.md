@@ -10,7 +10,18 @@ Times in this runbook are ICT (UTC+7).
 |---|---|---|---|---|
 | Local | `cd app && npm run dev` / `npm run build && npm start` | localhost:3000 | Developer | Off |
 | Preview | Any push to a non-`main` branch / PR | `portfolio-git-<branch>-<scope>.vercel.app` and a per-commit URL (Vercel bot comment on the PR) | Vercel-authenticated users (Standard Protection), or anyone with a shareable link | Off |
-| Production | Merge to `main` | `https://<domain>` (C-25; placeholder until D-02) + `portfolio.vercel.app` | Public, indexable | On (page views + Speed Insights RES) |
+| Production | Merge to `main` | `NEXT_PUBLIC_SITE_URL`, or `https://$VERCEL_PROJECT_PRODUCTION_URL` when that is unset (C-25) | Public, indexable | On (page views + Speed Insights RES) |
+
+### 1.1 Site URL (metadataBase, canonical, sitemap, robots, JSON-LD, OG)
+
+The same resolver (`configuredSiteUrl` / `getSiteUrl` in `lib/site.ts`) is used everywhere, including `validate:content`:
+
+1. `NEXT_PUBLIC_SITE_URL` when it is set (custom domain). No trailing slash.
+2. Otherwise `https://${VERCEL_PROJECT_PRODUCTION_URL}`. Vercel injects that system variable on every deployment, so a dashboard import needs no env setup.
+3. Production (`VERCEL_ENV=production`) fails the content gate and the build only when both are unset.
+4. Local and CI (`VERCEL_ENV` is not `production`) fall back to `https://$VERCEL_URL`, then `http://localhost:3000`.
+
+See `.env.example`.
 
 ## 2. Preview → production flow
 ```

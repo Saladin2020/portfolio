@@ -7,7 +7,8 @@
       "url": ["http://localhost:3000/"],
       "numberOfRuns": 3,
       "settings": {
-        "chromeFlags": "--no-sandbox"
+        "chromeFlags": "--no-sandbox",
+        "skipAudits": ["is-crawlable"]
       }
     },
     "assert": {
@@ -16,6 +17,7 @@
         "categories:accessibility": ["error", { "minScore": 0.9, "aggregationMethod": "median-run" }],
         "categories:best-practices": ["error", { "minScore": 0.9, "aggregationMethod": "median-run" }],
         "categories:seo": ["error", { "minScore": 0.9, "aggregationMethod": "median-run" }],
+        "is-crawlable": "off",
 
         "largest-contentful-paint": ["error", { "maxNumericValue": 2500, "aggregationMethod": "median-run" }],
         "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1, "aggregationMethod": "median-run" }],

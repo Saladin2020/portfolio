@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
-import { Anuphan } from 'next/font/google';
 import Link from 'next/link';
+import { anuphan } from '@/lib/font';
 import { getSiteUrl } from '@/lib/site';
 import { th } from '@/messages/th';
 import '@/styles/globals.css';
 
 /** Thai 404 for URLs that match no route, incl. unknown locales/slugs (ARCHITECTURE §5.2 fallback). */
-const anuphan = Anuphan({ subsets: ['thai', 'latin'], display: 'swap', variable: '--font-anuphan' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),

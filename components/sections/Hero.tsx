@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import type { SiteContent } from '@/content';
 import type { Messages } from '@/messages/th';
 import { PillLink } from '@/components/ui/Pill';
@@ -12,20 +11,27 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
   const thumbs = c.projects.slice(0, 3).map((pr) => pr.images[0]!.src);
   return (
     <section id="top" aria-labelledby="hero-heading" className="section-x relative overflow-hidden pt-4 pb-11 lg:pt-11 lg:pb-12">
-      {/* Decorative thumbnails of the PO's own projects (alt="", AC-HERO-04). */}
+      {/* Decorative thumbnails of the PO's own projects (hidden from AT, AC-HERO-04). */}
       <div aria-hidden="true" className="pointer-events-none mx-auto flex max-sm:hidden max-w-copy justify-center xl:max-w-none gap-2 pb-4 xl:absolute xl:inset-0 xl:block xl:pb-0">
-        {thumbs.map((src, i) => (
-          <Image
+        {/* Real files load only at ≥ sm (640px). Mobile Lighthouse must not fetch these decorative thumbs. */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `@media (min-width: 640px){${thumbs
+              .map(
+                (src, i) =>
+                  `.hero-thumb-${i}{background-image:url("/_next/image?url=${encodeURIComponent(src.src)}&w=384&q=75");background-size:cover;background-position:center}`,
+              )
+              .join('')}}`,
+          }}
+        />
+        {thumbs.map((_, i) => (
+          <div
             key={i}
-            src={src}
-            alt=""
-            width={240}
-            height={150}
             className={
               [
-                'h-auto w-1/4 rounded-element border border-light-border-subtle shadow-card max-sm:hidden xl:absolute xl:w-1/6 xl:-rotate-6 xl:top-12 xl:left-10',
-                'h-auto w-1/4 rounded-element border border-light-border-subtle shadow-card max-sm:hidden xl:absolute xl:w-1/6 xl:rotate-6 xl:top-10 xl:right-10',
-                'h-auto w-1/4 rounded-element border border-light-border-subtle shadow-card max-sm:hidden xl:absolute xl:w-1/6 xl:-rotate-3 xl:bottom-6 xl:left-12',
+                'hero-thumb-0 aspect-16/10 h-auto w-1/4 rounded-element border border-light-border-subtle shadow-card max-sm:hidden xl:absolute xl:w-1/6 xl:-rotate-6 xl:top-12 xl:left-10',
+                'hero-thumb-1 aspect-16/10 h-auto w-1/4 rounded-element border border-light-border-subtle shadow-card max-sm:hidden xl:absolute xl:w-1/6 xl:rotate-6 xl:top-10 xl:right-10',
+                'hero-thumb-2 aspect-16/10 h-auto w-1/4 rounded-element border border-light-border-subtle shadow-card max-sm:hidden xl:absolute xl:w-1/6 xl:-rotate-3 xl:bottom-6 xl:left-12',
               ][i]
             }
           />
