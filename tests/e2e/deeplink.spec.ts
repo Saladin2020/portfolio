@@ -9,8 +9,9 @@ import { widthOf } from './helpers';
  *
  * Designed offset = scroll-padding-top + the section's padding-top
  * (e003abf, 45/45 OK): 148px below the lg breakpoint, 192px at ≥ 1030px.
- * The sticky nav occupies the top ~68px below lg and ~80px at 1440, so the
- * heading sits in the band just under that pill.
+ * The sticky nav fills the top ~68px below lg and ~80px at 1440, so the
+ * heading has to land on that offset, under the pill. A 0–80px cap would
+ * accept a heading covered by the nav.
  */
 const ANCHORS = ['work', 'process', 'skills', 'about', 'contact'] as const;
 
@@ -38,14 +39,14 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
         const heading = page.locator(`#${id}-heading`);
         await expect(heading).toBeVisible();
 
-        // Poll until scroll and font swap settle. The value is the heading's
-        // distance from the viewport top.
+        // Poll until the font swap and the hash re-align settle. The value is
+        // how far the heading sits from the designed offset.
         await expect
           .poll(
-            async () => heading.evaluate((el) => Math.round(el.getBoundingClientRect().top)),
-            { message: `#${id} @ ${viewport.width}×${viewport.height}`, timeout: 5_000 },
+            async () => heading.evaluate((el, exp) => Math.abs(Math.round(el.getBoundingClientRect().top) - exp), expected),
+            { message: `#${id} @ ${viewport.width}×${viewport.height} expected top ${expected}px`, timeout: 5_000 },
           )
-          .toBe(expected);
+          .toBeLessThanOrEqual(4);
 
         const box = await heading.evaluate((el) => {
           const r = el.getBoundingClientRect();

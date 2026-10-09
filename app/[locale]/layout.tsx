@@ -10,12 +10,26 @@ import { anuphan } from '@/lib/font';
 import { getSiteUrl, isProduction } from '@/lib/site';
 import '@/styles/globals.css';
 
-/** Adds `js` before paint, then `fonts-active` on the task after the text LCP entry. */
+/**
+ * Adds `js` before paint, then `fonts-active` on the task after the text LCP entry.
+ * Applying Anuphan reflows Thai text above a hash target, which leaves the heading
+ * under the nav (CI measured ~40px). Re-align the hash once the face is ready,
+ * unless the reader has already scrolled.
+ */
 const bootScript =
   "document.documentElement.classList.add('js');" +
-  '(function(){var done=false;function apply(){if(done)return;done=true;document.documentElement.classList.add("fonts-active");}' +
+  '(function(){var done=false,moved=false;' +
+  "addEventListener('wheel',function(){moved=true;},{passive:true,once:true});" +
+  "addEventListener('touchstart',function(){moved=true;},{passive:true,once:true});" +
+  "addEventListener('keydown',function(){moved=true;},{once:true});" +
+  'function align(){if(moved)return;var id=location.hash.slice(1);if(!id)return;var el=document.getElementById(id);if(!el)return;' +
+  "var root=document.documentElement,prev=root.style.scrollBehavior;root.style.scrollBehavior='auto';el.scrollIntoView({block:'start'});root.style.scrollBehavior=prev;}" +
+  'function settle(){requestAnimationFrame(function(){requestAnimationFrame(align);});}' +
+  'function apply(){if(done)return;done=true;document.documentElement.classList.add("fonts-active");' +
+  'if(document.fonts)document.fonts.ready.then(settle);else align();}' +
+  'if(document.fonts)document.fonts.addEventListener("loadingdone",settle);' +
   'try{new PerformanceObserver(function(list,obs){if(!list.getEntries().length)return;obs.disconnect();setTimeout(apply,0);}).observe({type:"largest-contentful-paint",buffered:true});}catch(e){}' +
-  'setTimeout(apply,4000);})();';
+  'setTimeout(apply,4000);addEventListener("load",settle);})();';
 
 export const dynamicParams = false;
 export function generateStaticParams() {
