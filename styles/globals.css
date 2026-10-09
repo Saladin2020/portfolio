@@ -316,6 +316,43 @@ body:has(dialog[open]) {
   }
 }
 
+/* Below-the-fold layout (BUG-01). A mobile trace lays out the whole document
+   (~800 boxes) several times; the work cards and the sections under them are
+   most of that tree (Thai line breaking). content-visibility skips style and
+   layout until the block nears the viewport. contain-intrinsic-size is the
+   measured single-column height so the next section stays outside Chrome's
+   proximity margin, and `auto` remembers the real size after the first render.
+   The wide layout (lg) is shorter, so the same placeholders would overshoot
+   in-page anchors; that range keeps normal layout. */
+@media (width < theme(--breakpoint-lg)) {
+  #work ul.cv-defer,
+  #process.cv-defer,
+  #skills.cv-defer,
+  #about.cv-defer,
+  #contact.cv-defer,
+  footer.cv-defer {
+    content-visibility: auto;
+  }
+  #work ul.cv-defer {
+    contain-intrinsic-size: auto 3200px;
+  }
+  #process.cv-defer {
+    contain-intrinsic-size: auto 2600px;
+  }
+  #skills.cv-defer {
+    contain-intrinsic-size: auto 1100px;
+  }
+  #about.cv-defer {
+    contain-intrinsic-size: auto 1000px;
+  }
+  #contact.cv-defer {
+    contain-intrinsic-size: auto 1200px;
+  }
+  footer.cv-defer {
+    contain-intrinsic-size: auto 320px;
+  }
+}
+
 /* Skip link: `not-sr-only` resets padding to 0, which lets Thai tone marks touch the pill (BUG-09). */
 .skip-link:focus {
   padding-block: var(--space-2);

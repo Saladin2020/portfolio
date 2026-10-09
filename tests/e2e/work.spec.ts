@@ -51,6 +51,28 @@ test.describe('featured work: filter + project detail (S-3, S-3b, AC-WORK-*)', (
     expect(await page.evaluate(() => (window as unknown as { __marker?: number }).__marker)).toBe(42); // no reload / Next navigation
   });
 
+  test('dialog: Esc and close return focus with and without a hash (AC-WORK-09)', async ({ page }, testInfo) => {
+    test.skip((testInfo.project.use.viewport?.width ?? 0) !== 1440, 'focus return is independent of viewport');
+    const trigger = page.locator('a[data-project-link="p3"]').first();
+    for (const start of ['/', '/#work'] as const) {
+      for (const how of ['Escape', 'close'] as const) {
+        await test.step(`${how} from ${start || '/'}`, async () => {
+          await page.goto(start);
+          await trigger.scrollIntoViewIfNeeded();
+          await trigger.click();
+          const dialog = page.locator('#project-dialog-p3');
+          await expect(dialog).toBeVisible();
+          await expect(page).toHaveURL(/\/work\/p3$/);
+          if (how === 'Escape') await page.keyboard.press('Escape');
+          else await dialog.getByRole('button', { name: 'ปิด' }).click();
+          await expect(dialog).toBeHidden();
+          await expect(page).toHaveURL(start === '/#work' ? /\/#work$/ : /\/$/);
+          await expect(trigger).toBeFocused();
+        });
+      }
+    }
+  });
+
   test('dialog: browser Back closes it; Forward reopens it; close button works', async ({ page }) => {
     await page.goto('/');
     const trigger = page.locator('a[data-project-link="labwise"]').first();

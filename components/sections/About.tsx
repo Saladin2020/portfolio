@@ -12,7 +12,7 @@ export function About({ c, m }: { c: SiteContent; m: Messages }) {
   const raw = 'availability' in p ? (p.availability as string | undefined) : undefined;
   const availability = raw && (AVAILABILITY as readonly string[]).includes(raw) ? p.availabilityLabel[raw as Availability] : undefined;
   return (
-    <Section id="about" heading={m.about.heading}>
+    <Section id="about" heading={m.about.heading} className="cv-defer">
       <div className="grid items-start gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12">
         <Image
           src={p.photo}
