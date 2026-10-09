@@ -17,6 +17,9 @@ export function ProjectDialogEnhancer() {
     let openSlug: string | null = null;
     let trigger: HTMLElement | null = null;
     let closingFromHistory = false;
+    // Card to refocus once a hash traversal (back to /#work) has finished moving focus.
+    let pendingEl: HTMLElement | null = null;
+    let focusToken = 0;
     const wired = new WeakSet<HTMLDialogElement>();
     const opening = new Set<string>();
 
@@ -26,16 +29,37 @@ export function ProjectDialogEnhancer() {
       return s?.portfolioProject ?? null;
     };
 
+    // Esc / ✕ call history.back(). When the page underneath is /#work, that hash
+    // traversal focuses <body> after the close task. Restore the card on the
+    // following frame, and again from popstate/hashchange if the traversal lands later.
+    const focusWhenSettled = (el: HTMLElement | null) => {
+      if (!el) return;
+      pendingEl = el;
+      const token = ++focusToken;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (token !== focusToken || openSlug) return;
+          el.focus();
+          if (document.activeElement === el) pendingEl = null;
+        });
+      });
+    };
+
     const onClose = (e: Event) => {
       const dialog = e.currentTarget as HTMLDialogElement;
       const slug = dialog.id.slice(DIALOG_PREFIX.length);
       if (openSlug !== slug) return;
       openSlug = null;
-      if (!closingFromHistory && stateSlug() === slug) window.history.back();
-      closingFromHistory = false;
       const target = trigger ?? document.querySelector<HTMLElement>(`a[data-project-link="${CSS.escape(slug)}"]`);
-      target?.focus();
       trigger = null;
+      const fromHistory = closingFromHistory;
+      closingFromHistory = false;
+      // Arm before back() so a synchronous popstate/hashchange can re-schedule.
+      if (!fromHistory && stateSlug() === slug) {
+        pendingEl = target;
+        window.history.back();
+      }
+      focusWhenSettled(target);
     };
 
     const onBackdrop = (e: MouseEvent) => {
@@ -92,16 +116,23 @@ export function ProjectDialogEnhancer() {
         closingFromHistory = true;
         dialogFor(openSlug)?.close();
       } else if (!openSlug && slug) {
-        // Forward navigation back onto a dialog entry.
+        // Forward navigation back onto a dialog entry. Drop a pending card restore
+        // so it cannot steal focus from the heading once the dialog is open.
+        pendingEl = null;
+        focusToken += 1;
         void open(slug, document.querySelector<HTMLElement>(`a[data-project-link="${CSS.escape(slug)}"]`), false);
+        return;
       }
+      if (pendingEl && !openSlug) focusWhenSettled(pendingEl);
     };
 
     document.addEventListener('click', onClick);
     window.addEventListener('popstate', onPop);
+    window.addEventListener('hashchange', onPop);
     return () => {
       document.removeEventListener('click', onClick);
       window.removeEventListener('popstate', onPop);
+      window.removeEventListener('hashchange', onPop);
     };
   }, []);
 

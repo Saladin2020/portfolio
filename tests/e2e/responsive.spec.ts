@@ -26,6 +26,54 @@ test.describe('responsive (AC-RESP-01, AC-NAV-03, AC-HERO-03)', () => {
     }
   });
 
+  test('hero thumbnails keep a real size from 640px through 1199px (REG-01)', async ({ page }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 1440, 'viewports are set inside this test');
+    const measure = async (width: number, height: number) => {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      return page.evaluate(() => {
+        const box = (el: Element) => {
+          const r = el.getBoundingClientRect();
+          return { w: r.width, h: r.height, y: r.top, display: getComputedStyle(el).display };
+        };
+        return {
+          thumbs: [...document.querySelectorAll('#top [class*="hero-thumb-"]')].map(box),
+          imgs: [...document.querySelectorAll('#top img')].map(box),
+        };
+      });
+    };
+
+    const stacked = await measure(360, 800);
+    expect(stacked.imgs).toHaveLength(3);
+    for (const img of stacked.imgs) {
+      expect(img.w).toBeGreaterThanOrEqual(160);
+      expect(img.h).toBeGreaterThanOrEqual(90);
+    }
+    expect(stacked.imgs[1]!.y).toBeGreaterThan(stacked.imgs[0]!.y + stacked.imgs[0]!.h - 1);
+    expect(stacked.imgs[2]!.y).toBeGreaterThan(stacked.imgs[1]!.y + stacked.imgs[1]!.h - 1);
+    for (const thumb of stacked.thumbs) expect(thumb.display).toBe('none');
+
+    for (const width of [640, 768, 1024, 1199]) {
+      const mid = await measure(width, 900);
+      expect(mid.thumbs, `three thumbs at ${width}`).toHaveLength(3);
+      for (const thumb of mid.thumbs) {
+        expect(thumb.w, `thumb width at ${width}`).toBeGreaterThanOrEqual(80);
+        expect(thumb.h, `thumb height at ${width}`).toBeGreaterThanOrEqual(48);
+      }
+      expect(Math.abs(mid.thumbs[0]!.y - mid.thumbs[1]!.y), `row at ${width}`).toBeLessThan(8);
+      expect(Math.abs(mid.thumbs[1]!.y - mid.thumbs[2]!.y), `row at ${width}`).toBeLessThan(8);
+    }
+
+    const wide = await measure(1200, 900);
+    expect(wide.thumbs).toHaveLength(3);
+    for (const thumb of wide.thumbs) {
+      expect(thumb.w).toBeGreaterThanOrEqual(80);
+      expect(thumb.h).toBeGreaterThanOrEqual(48);
+    }
+    const ys = wide.thumbs.map((thumb) => thumb.y);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(40);
+  });
+
   test('hero CTAs are visible without scrolling', async ({ page }) => {
     await page.goto('/');
     for (const cta of ['hero_view_work', 'hero_contact']) {

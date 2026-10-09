@@ -13,7 +13,7 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
   return (
     <section id="top" aria-labelledby="hero-heading" className="section-x relative flex flex-col overflow-hidden pt-4 pb-11 lg:pt-11 lg:pb-12">
       {/* Decorative thumbnails of the PO's own projects (hidden from AT, AC-HERO-04). */}
-      <div aria-hidden="true" className="pointer-events-none order-1 mx-auto flex max-sm:hidden max-w-copy justify-center xl:max-w-none gap-2 pb-4 xl:absolute xl:inset-0 xl:block xl:pb-0">
+      <div aria-hidden="true" className="pointer-events-none order-1 mx-auto flex w-full max-w-copy max-sm:hidden justify-center gap-2 pb-4 xl:absolute xl:inset-0 xl:block xl:w-auto xl:max-w-none xl:pb-0">
         {/* Real files load only at ≥ sm (640px). Mobile Lighthouse must not fetch these decorative thumbs. */}
         <style
           dangerouslySetInnerHTML={{
