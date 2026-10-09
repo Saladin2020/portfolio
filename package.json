@@ -16,6 +16,7 @@
     "tokens:check": "node scripts/tokens.mjs --check",
     "tokens:sync": "node scripts/tokens.mjs --sync",
     "validate:content": "tsx --require ./scripts/register-assets.cjs scripts/validate-content.ts",
+    "test": "tsx --test tests/site-url.test.ts",
     "assert-static": "tsx --require ./scripts/register-assets.cjs scripts/assert-static.ts",
     "test:e2e": "playwright test"
   },

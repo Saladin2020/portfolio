@@ -2,7 +2,8 @@
  * Content validation + placeholder gate (ARCHITECTURE §4.5). Runs in `prebuild` and CI.
  *   - Always: zod schemas, lengths, alt text per image, slug format, 3–6 rendered projects, qualityNote rule.
  *   - Local/preview: placeholders are listed as warnings (a live content checklist).
- *   - Production (VERCEL_ENV=production): any placeholder, missing NEXT_PUBLIC_SITE_URL, or a resume ≥ 2 MB fails.
+ *   - Production (VERCEL_ENV=production): any placeholder, a missing site URL
+ *     (NEXT_PUBLIC_SITE_URL or VERCEL_PROJECT_PRODUCTION_URL), or a resume ≥ 2 MB fails.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,6 +29,7 @@ import {
   skillGroupSchema,
 } from '../content/schema';
 import { isPlaceholder } from '../content/placeholder';
+import { configuredSiteUrl } from '../lib/site';
 
 const isProd = process.env.VERCEL_ENV === 'production';
 const errors: string[] = [];
@@ -103,7 +105,11 @@ if (placeholders.size) {
   else console.warn(`[validate-content] WARN ${msg}`);
 }
 if (!resume) console.log('[validate-content] note: resume (C-24) not configured, so the resume CTA is hidden');
-if (isProd && !process.env.NEXT_PUBLIC_SITE_URL) errors.push('NEXT_PUBLIC_SITE_URL is required for production builds (C-25)');
+if (isProd && !configuredSiteUrl()) {
+  errors.push(
+    'Site URL is required for production builds: set NEXT_PUBLIC_SITE_URL or deploy on Vercel (VERCEL_PROJECT_PRODUCTION_URL) (C-25)',
+  );
+}
 
 if (errors.length) {
   console.error(`[validate-content] FAILED (${isProd ? 'production' : 'preview/local'}):\n  - ${errors.join('\n  - ')}`);

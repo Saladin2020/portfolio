@@ -1,20 +1,21 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { Anuphan } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { LOCALES } from '@/i18n/config';
 import { getI18n } from '@/i18n/server';
 import { getContent } from '@/content';
 import { SkipLink } from '@/components/layout/SkipLink';
+import { anuphan } from '@/lib/font';
 import { getSiteUrl, isProduction } from '@/lib/site';
 import '@/styles/globals.css';
 
-const anuphan = Anuphan({
-  subsets: ['thai', 'latin'],
-  display: 'swap',
-  variable: '--font-anuphan',
-});
+/** Adds `js` before paint, then `fonts-active` on the task after the text LCP entry. */
+const bootScript =
+  "document.documentElement.classList.add('js');" +
+  '(function(){var done=false;function apply(){if(done)return;done=true;document.documentElement.classList.add("fonts-active");}' +
+  'try{new PerformanceObserver(function(list,obs){if(!list.getEntries().length)return;obs.disconnect();setTimeout(apply,0);}).observe({type:"largest-contentful-paint",buffered:true});}catch(e){}' +
+  'setTimeout(apply,4000);})();';
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -52,7 +53,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang={locale} className={anuphan.variable} suppressHydrationWarning>
       <head>
         {/* Marks JS availability before paint so JS-only controls never flash (no-JS fallbacks stay usable). */}
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className="min-h-dvh antialiased">
         <SkipLink label={m.skipLink} />
