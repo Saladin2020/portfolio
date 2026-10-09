@@ -1,0 +1,53 @@
+# Weekly Lighthouse lab run against PRODUCTION (DEVOPS-004).
+# * Production is public (Standard Protection leaves production domains open), so no secrets are used.
+# * lighthouserc.prod.json keeps the same budgets as lighthouserc.json but does NOT skip
+#   `is-crawlable`: production must be indexable (robots.txt allow + no noindex).
+# * Target: repo variable PROD_URL if set (e.g. after a custom domain is added), otherwise the
+#   current production URL below. Results are uploaded as an artifact (no headers/secrets involved).
+name: Lighthouse (production)
+
+on:
+  schedule:
+    - cron: "17 2 * * 1" # Mondays 02:17 UTC = 09:17 ICT
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lighthouse-prod
+  cancel-in-progress: false
+
+env:
+  PROD_URL: ${{ vars.PROD_URL || 'https://portfolio-three-nu-t7xr2qj34b.vercel.app' }}
+
+jobs:
+  lighthouse-prod:
+    name: lighthouse-prod
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - name: Resolve production URL into a runtime config
+        run: |
+          origin="${PROD_URL%/}"
+          case "$origin" in https://*) ;; *) echo "::error::PROD_URL must be https://"; exit 1 ;; esac
+          sed "s#__PROD_URL__#${origin}#g" lighthouserc.prod.json > "$RUNNER_TEMP/lhci-prod.json"
+      - name: Lighthouse CI (lab, mobile) against production
+        run: npx --yes @lhci/cli@0.15.1 autorun --config="$RUNNER_TEMP/lhci-prod.json"
+      - name: Upload Lighthouse results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-prod
+          include-hidden-files: true
+          path: |
+            .lighthouseci
+            lhci-report
+          retention-days: 30
+          if-no-files-found: ignore
