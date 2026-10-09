@@ -340,6 +340,21 @@ body:has(dialog[open]) {
   }
 }
 
+/* Hero identity and the Facebook CTA stay one line below sm. Their slack was
+   ~15px, so a slightly wider fallback added a line and pushed the CTA row
+   past the 640px fold (and shifted the first viewport once the cached face
+   swapped in). Copy is unchanged. */
+@media (width < 640px) {
+  .hero-name {
+    font-size: var(--font-size-md);
+    white-space: nowrap;
+  }
+  .hero-facebook {
+    padding-inline: var(--space-1);
+    white-space: nowrap;
+  }
+}
+
 /* Skip link: `not-sr-only` resets padding to 0, which lets Thai tone marks touch the pill (BUG-09). */
 .skip-link:focus {
   padding-block: var(--space-2);

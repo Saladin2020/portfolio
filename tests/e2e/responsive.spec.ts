@@ -82,24 +82,49 @@ test.describe('responsive (AC-RESP-01, AC-NAV-03, AC-HERO-03)', () => {
     }
   });
 
-  test('hero CTAs including Facebook stay above the fold at 360×640 (NEW-02)', async ({ page }, testInfo) => {
+  test('hero CTAs stay in the fold before and after the web font (NEW-02, NEW-02b)', async ({ page }, testInfo) => {
     test.skip(widthOf(testInfo) !== 360, 'the Facebook row overflowed at 360×640');
+
+    const check = async (width: number, height: number, phase: string) => {
+      await page.setViewportSize({ width, height });
+      const boxes = await page.evaluate(() => {
+        const ids = ['hero_view_work', 'hero_contact', 'hero_facebook'] as const;
+        return ids.map((id) => {
+          const r = document.querySelector(`[data-cta="${id}"]`)!.getBoundingClientRect();
+          return { id, top: r.top, bottom: r.bottom, height: r.height, scrollY: window.scrollY };
+        });
+      });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `${phase} ${width}×${height} horizontal overflow`).toBeLessThanOrEqual(1);
+      for (const box of boxes) {
+        expect(box.scrollY, `${phase} ${box.id}`).toBe(0);
+        expect(box.top, `${phase} ${box.id}`).toBeGreaterThanOrEqual(0);
+        expect(box.height, `${phase} ${box.id}`).toBeGreaterThanOrEqual(44);
+      }
+      const facebook = boxes.find((box) => box.id === 'hero_facebook')!;
+      expect(facebook.height, `${phase} Facebook wraps at ${width}`).toBeLessThanOrEqual(52);
+      if (height === 640) {
+        for (const box of boxes) {
+          expect(box.bottom, `${phase} ${box.id} ends below the 640px fold`).toBeLessThanOrEqual(640);
+        }
+      } else {
+        for (const box of boxes.filter((item) => item.id !== 'hero_facebook')) {
+          expect(box.bottom, `${phase} ${box.id} ends below the 568px fold`).toBeLessThanOrEqual(568);
+        }
+      }
+    };
+
+    await page.route('**/*.woff2', (route) => route.abort());
+    await page.setViewportSize({ width: 360, height: 640 });
+    await page.goto('/');
+    await check(360, 640, 'fallback');
+    await check(320, 568, 'fallback');
+    await page.unroute('**/*.woff2');
     await page.setViewportSize({ width: 360, height: 640 });
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
-    const boxes = await page.evaluate(() => {
-      const ids = ['hero_view_work', 'hero_contact', 'hero_facebook'] as const;
-      return ids.map((id) => {
-        const r = document.querySelector(`[data-cta="${id}"]`)!.getBoundingClientRect();
-        return { id, top: r.top, bottom: r.bottom, height: r.height, scrollY: window.scrollY };
-      });
-    });
-    for (const box of boxes) {
-      expect(box.scrollY, box.id).toBe(0);
-      expect(box.top, box.id).toBeGreaterThanOrEqual(0);
-      expect(box.height, box.id).toBeGreaterThanOrEqual(44);
-      expect(box.bottom, `${box.id} ends below the 640px fold`).toBeLessThanOrEqual(640);
-    }
+    await check(360, 640, 'anuphan');
+    await check(320, 568, 'anuphan');
   });
 
   test('touch targets are at least 44×44 on the touch layout (AC-RESP-03)', async ({ page }, testInfo) => {

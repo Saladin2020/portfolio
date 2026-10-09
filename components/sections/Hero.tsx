@@ -49,7 +49,7 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
             {m.hero.availabilityPrefix} {availability}
           </a>
         )}
-        <p className="type-lead text-light-text-heading">
+        <p className="hero-name type-lead text-light-text-heading">
           {p.displayName ?? p.fullName}{' '}
           <span lang="en" className="text-light-text-secondary">
             · {p.nameEn}
@@ -79,7 +79,7 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
                 href={h.url}
                 external
                 variant="secondary"
-                className="max-w-full min-w-0 whitespace-normal px-6 max-sm:w-full"
+                className="hero-facebook max-w-full min-w-0 max-sm:w-full"
                 {...ctaAttrs('hero_facebook')}
               >
                 {p.hireCta?.[h.id] ?? p.hireLabels[h.id] ?? h.id}
