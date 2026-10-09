@@ -82,6 +82,26 @@ test.describe('responsive (AC-RESP-01, AC-NAV-03, AC-HERO-03)', () => {
     }
   });
 
+  test('hero CTAs including Facebook stay above the fold at 360×640 (NEW-02)', async ({ page }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 360, 'the Facebook row overflowed at 360×640');
+    await page.setViewportSize({ width: 360, height: 640 });
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    const boxes = await page.evaluate(() => {
+      const ids = ['hero_view_work', 'hero_contact', 'hero_facebook'] as const;
+      return ids.map((id) => {
+        const r = document.querySelector(`[data-cta="${id}"]`)!.getBoundingClientRect();
+        return { id, top: r.top, bottom: r.bottom, height: r.height, scrollY: window.scrollY };
+      });
+    });
+    for (const box of boxes) {
+      expect(box.scrollY, box.id).toBe(0);
+      expect(box.top, box.id).toBeGreaterThanOrEqual(0);
+      expect(box.height, box.id).toBeGreaterThanOrEqual(44);
+      expect(box.bottom, `${box.id} ends below the 640px fold`).toBeLessThanOrEqual(640);
+    }
+  });
+
   test('touch targets are at least 44×44 on the touch layout (AC-RESP-03)', async ({ page }, testInfo) => {
     test.skip(widthOf(testInfo) !== 360, 'measured on the touch layout');
     await page.goto('/');
@@ -96,7 +116,8 @@ test.describe('responsive (AC-RESP-01, AC-NAV-03, AC-HERO-03)', () => {
       return groups.flatMap((sel) =>
         [...document.querySelectorAll<HTMLElement>(sel)].map((el) => {
           const r = el.getBoundingClientRect();
-          return { sel, text: (el.textContent ?? '').trim().slice(0, 24), w: r.width, h: r.height };
+          // min-h-touch is 44px; layout can report 43.999 on a fractional device pixel.
+          return { sel, text: (el.textContent ?? '').trim().slice(0, 24), w: Math.round(r.width), h: Math.round(r.height) };
         }),
       );
     });

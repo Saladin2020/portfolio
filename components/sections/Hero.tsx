@@ -11,7 +11,7 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
   const availability = 'availability' in p && p.availability && isKnownAvailability(p.availability) ? p.availabilityLabel[p.availability] : undefined;
   const thumbs = c.projects.slice(0, 3).map((pr) => pr.images[0]!.src);
   return (
-    <section id="top" aria-labelledby="hero-heading" className="section-x relative flex flex-col overflow-hidden pt-4 pb-11 lg:pt-11 lg:pb-12">
+    <section id="top" aria-labelledby="hero-heading" className="section-x relative flex flex-col overflow-hidden pt-2 pb-11 sm:pt-4 lg:pt-11 lg:pb-12">
       {/* Decorative thumbnails of the PO's own projects (hidden from AT, AC-HERO-04). */}
       <div aria-hidden="true" className="pointer-events-none order-1 mx-auto flex w-full max-w-copy max-sm:hidden justify-center gap-2 pb-4 xl:absolute xl:inset-0 xl:block xl:w-auto xl:max-w-none xl:pb-0">
         {/* Real files load only at ≥ sm (640px). Mobile Lighthouse must not fetch these decorative thumbs. */}
@@ -43,7 +43,7 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
         {availability && (
           <a
             href="#availability-detail"
-            className="mb-3 inline-flex min-h-touch max-w-full items-center gap-1-5 rounded-full border border-light-border-subtle bg-light-surface px-3 type-small text-light-text-secondary"
+            className="mb-1 inline-flex min-h-touch max-w-full items-center gap-1-5 rounded-full border border-light-border-subtle bg-light-surface px-3 type-small text-light-text-secondary sm:mb-3"
           >
             <span aria-hidden="true" className="size-1-5 shrink-0 rounded-full bg-status-success" />
             {m.hero.availabilityPrefix} {availability}
@@ -60,11 +60,11 @@ export function Hero({ c, m }: { c: SiteContent; m: Messages }) {
             {p.positioning}
           </p>
         )}
-        <h1 id="hero-heading" className="mt-2 type-h2 text-balance text-light-text-heading lg:type-display">
+        <h1 id="hero-heading" className="mt-1 type-h2 text-balance text-light-text-heading sm:mt-2 lg:type-display">
           <RichText value={p.headline} scene="light" animate />
         </h1>
-        {p.valueProp && <p className="mt-3 type-lead text-light-text-secondary">{p.valueProp}</p>}
-        <div className="mt-6 flex w-full flex-wrap justify-center gap-2">
+        {p.valueProp && <p className="mt-2 type-lead text-light-text-secondary sm:mt-3">{p.valueProp}</p>}
+        <div className="mt-3 flex w-full flex-wrap justify-center gap-2 sm:mt-6">
           <PillLink href="#work" variant="primary" className="px-6 max-sm:flex-1" {...ctaAttrs('hero_view_work')}>
             {m.hero.viewWork}
           </PillLink>
