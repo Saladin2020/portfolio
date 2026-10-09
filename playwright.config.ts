@@ -23,6 +23,10 @@ const bypassState =
     : undefined;
 const sensitive = bypassState !== undefined;
 
+// Preview only: ask Vercel not to inject its toolbar (vercel.live script), which our CSP blocks
+// by design. Not a secret. The bypass itself stays cookie-based (above); never add it here.
+const previewHeaders = sensitive ? { 'x-vercel-skip-toolbar': '1' } : undefined;
+
 const widths = [
   { name: 'w360', width: 360, height: 640 },
   { name: 'w768', width: 768, height: 1024 },
@@ -49,6 +53,7 @@ export default defineConfig({
     video: 'off',
     screenshot: sensitive ? 'off' : 'only-on-failure',
     ...(bypassState ? { storageState: bypassState } : {}),
+    ...(previewHeaders ? { extraHTTPHeaders: previewHeaders } : {}),
   },
   projects: widths.map((w) => ({
     name: w.name,

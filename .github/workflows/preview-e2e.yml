@@ -123,7 +123,12 @@ jobs:
             const rc = JSON.parse(fs.readFileSync("lighthouserc.preview.json", "utf8"));
             const origin = process.env.BASE_URL.replace(/\/$/, "");
             rc.ci.collect.url = rc.ci.collect.url.map((u) => u.replace("__BASE_URL__", origin));
-            rc.ci.collect.settings = { ...(rc.ci.collect.settings || {}), extraHeaders: JSON.stringify({
+            // Committed, non-secret headers (x-vercel-skip-toolbar) + the bypass header, merged
+            // only in this temp file. extraHeaders may be a JSON string or an object.
+            const settings = rc.ci.collect.settings || {};
+            const base = typeof settings.extraHeaders === "string"
+              ? JSON.parse(settings.extraHeaders) : (settings.extraHeaders || {});
+            rc.ci.collect.settings = { ...settings, extraHeaders: JSON.stringify({ ...base,
               "x-vercel-protection-bypass": process.env.VERCEL_AUTOMATION_BYPASS_SECRET }) };
             delete rc.ci.upload;
             fs.writeFileSync(process.env.LHCI_TMP_CONFIG, JSON.stringify(rc), { mode: 0o600 });
@@ -149,7 +154,8 @@ jobs:
           [ -f .lighthouseci/assertion-results.json ] && cp .lighthouseci/assertion-results.json "$SAFE_DIR/lhci-assertion-results.json"
           leak=0
           if [ -n "$VERCEL_AUTOMATION_BYPASS_SECRET" ] && grep -rqF -- "$VERCEL_AUTOMATION_BYPASS_SECRET" "$SAFE_DIR"; then leak=1; fi
-          if grep -rqiE -- 'x-vercel-protection-bypass|_vercel_jwt' "$SAFE_DIR"; then leak=1; fi
+          # Bypass names only; the non-secret x-vercel-skip-toolbar header is intentionally not matched.
+          if grep -rqiE -- 'x-vercel-protection-bypass|x-vercel-set-bypass-cookie|_vercel_jwt' "$SAFE_DIR"; then leak=1; fi
           if [ "$leak" -ne 0 ]; then
             rm -rf "$SAFE_DIR"
             echo "::error::Secret material found in staged results; nothing will be uploaded."

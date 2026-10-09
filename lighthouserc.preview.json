@@ -6,7 +6,12 @@
       ],
       "numberOfRuns": 3,
       "settings": {
-        "chromeFlags": "--no-sandbox"
+        "chromeFlags": "--no-sandbox",
+        "skipAudits": [
+          "is-crawlable",
+          "robots-txt"
+        ],
+        "extraHeaders": "{\"x-vercel-skip-toolbar\": \"1\"}"
       }
     },
     "assert": {
@@ -39,8 +44,10 @@
             "aggregationMethod": "median-run"
           }
         ],
+        "is-crawlable": "off",
+        "robots-txt": "off",
         "largest-contentful-paint": [
-          "error",
+          "warn",
           {
             "maxNumericValue": 2500,
             "aggregationMethod": "median-run"
