@@ -24,8 +24,28 @@ export function ProjectDialogEnhancer() {
     const opening = new Set<string>();
 
     const dialogFor = (slug: string) => document.getElementById(DIALOG_PREFIX + slug) as HTMLDialogElement | null;
+    type Hist = { __NA?: boolean; portfolioProject?: string };
+    // App Router history entry for this document, without a dialog slug.
+    // A same-document visit to /#work creates an entry whose state is null.
+    // The following pushState then looks like a route change, and a deferred
+    // restore can replaceState the URL back to /work/<slug> after history.back().
+    let pageState: Hist | null = null;
+    const snapshotPageState = () => {
+      const s = window.history.state as Hist | null;
+      if (!s?.__NA || s.portfolioProject) return;
+      const rest = { ...s };
+      delete rest.portfolioProject;
+      pageState = rest;
+    };
+    const restoreRouterState = () => {
+      snapshotPageState();
+      const s = window.history.state as Hist | null;
+      if (s?.__NA || !pageState) return;
+      window.history.replaceState(pageState, '', window.location.pathname + window.location.search + window.location.hash);
+    };
+    snapshotPageState();
     const stateSlug = (): string | null => {
-      const s = window.history.state as { portfolioProject?: string } | null;
+      const s = window.history.state as Hist | null;
       return s?.portfolioProject ?? null;
     };
 
@@ -86,6 +106,7 @@ export function ProjectDialogEnhancer() {
         dialog.showModal();
         dialog.querySelector<HTMLElement>(`#${CSS.escape(`dialog-${slug}-title`)}`)?.focus();
         if (push) {
+          restoreRouterState();
           window.history.pushState({ ...(window.history.state ?? {}), portfolioProject: slug }, '', `/work/${slug}`);
         }
         return true;
@@ -111,6 +132,7 @@ export function ProjectDialogEnhancer() {
     };
 
     const onPop = () => {
+      restoreRouterState();
       const slug = stateSlug();
       if (openSlug && slug !== openSlug) {
         closingFromHistory = true;

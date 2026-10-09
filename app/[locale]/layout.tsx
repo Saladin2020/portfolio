@@ -21,7 +21,8 @@ const bootScript =
   '(function(){var done=false,moved=false;' +
   "addEventListener('wheel',function(){moved=true;},{passive:true,once:true});" +
   "addEventListener('touchstart',function(){moved=true;},{passive:true,once:true});" +
-  "addEventListener('keydown',function(){moved=true;},{once:true});" +
+  'function onKey(e){var k=e.key;if(k===" "||k==="PageDown"||k==="PageUp"||k==="Home"||k==="End"||k.slice(0,5)==="Arrow"){moved=true;removeEventListener("keydown",onKey);}}' +
+  "addEventListener('keydown',onKey);" +
   'function align(){if(moved)return;var id=location.hash.slice(1);if(!id)return;var el=document.getElementById(id);if(!el)return;' +
   "var root=document.documentElement,prev=root.style.scrollBehavior;root.style.scrollBehavior='auto';el.scrollIntoView({block:'start'});root.style.scrollBehavior=prev;}" +
   'function settle(){requestAnimationFrame(function(){requestAnimationFrame(align);});}' +

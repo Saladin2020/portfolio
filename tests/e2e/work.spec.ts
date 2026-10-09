@@ -58,6 +58,13 @@ test.describe('featured work: filter + project detail (S-3, S-3b, AC-WORK-*)', (
       for (const how of ['Escape', 'close'] as const) {
         await test.step(`${how} from ${start || '/'}`, async () => {
           await page.goto(start);
+          if (start === '/#work') {
+            // Same-document #work must keep the App Router history state. A null
+            // entry lets a deferred restore rewrite the URL back to /work/p3.
+            await expect
+              .poll(async () => page.evaluate(() => Boolean((history.state as { __NA?: boolean } | null)?.__NA)))
+              .toBe(true);
+          }
           await trigger.scrollIntoViewIfNeeded();
           await trigger.click();
           const dialog = page.locator('#project-dialog-p3');
