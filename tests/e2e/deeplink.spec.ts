@@ -105,4 +105,88 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
       await client.detach();
     }
   });
+
+  test('keyboard scrolling during font load is not pulled back to the hash', async ({ page }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 1440, 'scroll-key handling is independent of viewport');
+    const client = await page.context().newCDPSession(page);
+    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+    await page.route('**/*.woff2', async (route) => {
+      await new Promise((r) => setTimeout(r, 4000));
+      await route.continue();
+    });
+    try {
+      await page.goto('/#about', { waitUntil: 'domcontentloaded' });
+      const heading = page.locator('#about-heading');
+      await expect
+        .poll(async () => heading.evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 4_000 })
+        .toBeLessThanOrEqual(192 + 80);
+      await page.keyboard.press('PageDown');
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(800);
+      const top = await heading.evaluate((el) => Math.round(el.getBoundingClientRect().top));
+      expect(top, 'PageDown was pulled back to the #about offset').toBeLessThan(192 - 80);
+    } finally {
+      await client.detach();
+    }
+  });
+
+  test('Ctrl+F and a following scroll are not pulled back to the hash', async ({ page }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 1440, 'find-in-page handling is independent of viewport');
+    const client = await page.context().newCDPSession(page);
+    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+    await page.route('**/*.woff2', async (route) => {
+      await new Promise((r) => setTimeout(r, 4000));
+      await route.continue();
+    });
+    try {
+      await page.goto('/#about', { waitUntil: 'domcontentloaded' });
+      const heading = page.locator('#about-heading');
+      await expect
+        .poll(async () => heading.evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 4_000 })
+        .toBeLessThanOrEqual(192 + 80);
+      // Find-in-page does not emit a scroll key. Ctrl/Cmd+F marks intent, and the
+      // scroll that follows must win over the font re-align.
+      await page.evaluate(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true }));
+        const root = document.documentElement;
+        const prev = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        window.scrollTo(0, Math.max(0, window.scrollY - 480));
+        root.style.scrollBehavior = prev;
+      });
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(800);
+      const top = await heading.evaluate((el) => Math.round(el.getBoundingClientRect().top));
+      expect(top, 'Ctrl+F scroll was pulled back to the #about offset').toBeGreaterThan(192 + 120);
+    } finally {
+      await client.detach();
+    }
+  });
+
+  test('a delayed font swap still lands #process, #contact and #work at 360×640', async ({ page }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 1440, 'viewport is set inside this test');
+    test.setTimeout(60_000);
+    await page.setViewportSize({ width: 360, height: 640 });
+    const client = await page.context().newCDPSession(page);
+    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+    await page.route('**/*.woff2', async (route) => {
+      await new Promise((r) => setTimeout(r, 4000));
+      await route.continue();
+    });
+    try {
+      for (const id of ['process', 'contact', 'work'] as const) {
+        await page.goto(`/#${id}`, { waitUntil: 'load' });
+        await expect.poll(async () => page.evaluate(() => document.documentElement.classList.contains('fonts-active')), { timeout: 8_000 }).toBe(true);
+        const heading = page.locator(`#${id}-heading`);
+        await expect
+          .poll(async () => heading.evaluate((el) => Math.abs(Math.round(el.getBoundingClientRect().top) - 148)), {
+            message: `#${id} after a 4s font swap should sit at 148px`,
+            timeout: 3_000,
+          })
+          .toBeLessThanOrEqual(4);
+      }
+    } finally {
+      await client.detach();
+    }
+  });
 });
