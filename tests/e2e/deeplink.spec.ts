@@ -218,9 +218,18 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
       const expected = expectedHeadingTop(viewport.width);
       for (const id of ['process', 'contact', 'work'] as const) {
         // A fresh context so the face is not already in the memory cache.
+        // Reuse the project base URL, bypass cookie, and headers. Hardcoding
+        // localhost makes preview-e2e dial a server that is not running.
+        const projectUse = testInfo.project.use;
         const context = await browser.newContext({
+          baseURL: projectUse.baseURL,
+          storageState: projectUse.storageState,
+          extraHTTPHeaders: projectUse.extraHTTPHeaders,
+          userAgent: projectUse.userAgent,
+          deviceScaleFactor: projectUse.deviceScaleFactor,
+          isMobile: projectUse.isMobile,
+          hasTouch: projectUse.hasTouch,
           viewport: { width: viewport.width, height: viewport.height },
-          baseURL: 'http://localhost:3000',
         });
         const page = await context.newPage();
         const fonts = await delayWoff2(page, 3500);
@@ -229,8 +238,12 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
           await page.goto(`/#${id}`, { waitUntil: 'load' });
           await waitForDelayedFonts(page, fonts, since);
           const heading = page.locator(`#${id}-heading`);
-          const top = await heading.evaluate((el) => Math.round(el.getBoundingClientRect().top));
-          expect(Math.abs(top - expected), `#${id} @ ${viewport.width} landed at ${top}px, expected ${expected}`).toBeLessThanOrEqual(4);
+          await expect
+            .poll(
+              async () => heading.evaluate((el, exp) => Math.abs(Math.round(el.getBoundingClientRect().top) - exp), expected),
+              { message: `#${id} @ ${viewport.width} after the delayed face should sit at ${expected}px`, timeout: 1_000 },
+            )
+            .toBeLessThanOrEqual(4);
         } finally {
           await context.close();
         }
