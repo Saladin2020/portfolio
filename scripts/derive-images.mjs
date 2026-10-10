@@ -4,7 +4,8 @@
  *   - MEMO: the "2 ผู้ใช้งาน" counter is covered (in a derived copy) by blending the page background
  *     rows directly above and below the badge, so no digits or text remain.
  *   - Inside shots (already blurred by the PO): the bottom strip with the mouse cursor is cropped off.
- *   - Profile photo: re-encoded copy for next/image + a 600 px copy at a stable public URL for JSON-LD.
+ *   - Profile illustration: re-encoded copy for next/image + a ≤600 px copy at a stable public URL for JSON-LD.
+ *     The approved source is 600×720. Outputs are never enlarged past it.
  * Never point this at unblurred originals (any `screenshots/` folder) or design/raw.
  *   node scripts/derive-images.mjs
  */
@@ -56,10 +57,30 @@ async function copy(file, slug, name) {
 }
 
 async function photo() {
-  await sharp(src('profile-photo.jpg')).jpeg({ quality: 85, mozjpeg: true }).toFile(out('profile/photo.jpg'));
+  // 5:6 illustration (600×720). Re-encode only; never enlarge past the source.
+  const input = src('profile-collage-news-glasses.jpg');
+  const { width: srcW, height: srcH } = await sharp(input).metadata();
+  if (!srcW || !srcH) throw new Error('profile source has no dimensions');
+
+  const master = out('profile/photo.jpg');
+  await sharp(input)
+    .resize({ width: srcW, height: srcH, fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 85, mozjpeg: true })
+    .toFile(master);
+
   const pub = path.resolve(process.cwd(), 'public/images/profile.jpg');
   fs.mkdirSync(path.dirname(pub), { recursive: true });
-  await sharp(src('profile-photo.jpg')).resize({ width: 600 }).jpeg({ quality: 80, mozjpeg: true }).toFile(pub);
+  await sharp(input)
+    .resize({ width: Math.min(600, srcW), fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 80, mozjpeg: true })
+    .toFile(pub);
+
+  for (const file of [master, pub]) {
+    const meta = await sharp(file).metadata();
+    if ((meta.width ?? 0) > srcW || (meta.height ?? 0) > srcH) {
+      throw new Error(`${file} is ${meta.width}x${meta.height}, larger than source ${srcW}x${srcH}`);
+    }
+  }
 }
 
 await memo();

@@ -15,6 +15,6 @@ export const profile = {
     hire: [{ id: 'facebook', url: 'https://www.facebook.com/negaton.man' }],
   },
   photo,
-  photoPublicPath: '/images/profile.jpg', // 600 px copy at a stable URL for JSON-LD / OG consumers
+  photoPublicPath: '/images/profile.jpg', // ≤600 px illustration at a stable URL for JSON-LD. OG/Twitter use the designed share card.
   availability: 'both',
 } satisfies ProfileData;
