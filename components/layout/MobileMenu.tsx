@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { Menu, X } from 'lucide-react';
 
 type Item = { id: string; label: string; href: string };
@@ -27,7 +27,8 @@ export function MobileMenu({ items, labels }: Props) {
     if (!dialog) return;
     const onClose = () => {
       setOpen(false);
-      buttonRef.current?.focus();
+      // preventScroll: focusing the button must not yank the page after a section jump.
+      buttonRef.current?.focus({ preventScroll: true });
     };
     dialog.addEventListener('close', onClose);
     return () => dialog.removeEventListener('close', onClose);
@@ -44,9 +45,43 @@ export function MobileMenu({ items, labels }: Props) {
   const openMenu = () => {
     const dialog = dialogRef.current;
     if (!dialog) return;
+    // Opening the sheet is a reader interaction: the font hash re-align must not run after it.
+    (window as unknown as { __portfolioHashAlign?: { freeze: () => void } }).__portfolioHashAlign?.freeze();
     dialog.showModal();
     setOpen(true);
     dialog.querySelector<HTMLAnchorElement>('a')?.focus();
+  };
+
+  // The native fragment scroll is computed while this dialog (and its scroll lock)
+  // is still open, then finishes short of the designed offset. Close first, then jump.
+  const follow = (id: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const jump = () => {
+      const align = (window as unknown as { __portfolioHashAlign?: { programmatic: (fn: () => void) => void } }).__portfolioHashAlign;
+      const go = () => {
+        const el = document.getElementById(id);
+        const root = document.documentElement;
+        const prev = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        el?.scrollIntoView({ block: 'start' });
+        root.style.scrollBehavior = prev;
+      };
+      if (align) align.programmatic(go);
+      else go();
+      const hash = `#${id}`;
+      if (window.location.hash !== hash) {
+        const prev = window.history.state as { __NA?: boolean } | null;
+        const base = prev && typeof prev === 'object' ? { ...prev } : {};
+        window.history.pushState({ ...base, __NA: true }, '', hash);
+      }
+    };
+    const dialog = dialogRef.current;
+    if (dialog?.open) {
+      dialog.addEventListener('close', () => requestAnimationFrame(() => requestAnimationFrame(jump)), { once: true });
+      dialog.close();
+    } else {
+      jump();
+    }
   };
 
   return (
@@ -87,7 +122,7 @@ export function MobileMenu({ items, labels }: Props) {
               <li key={item.id}>
                 <a
                   href={item.href}
-                  onClick={close}
+                  onClick={follow(item.id)}
                   data-nav-link={item.id}
                   className="flex min-h-touch items-center rounded-element px-3 type-lead text-light-text-heading no-underline hover:bg-light-muted aria-[current=true]:font-semibold"
                 >
