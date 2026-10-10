@@ -12,37 +12,48 @@ import '@/styles/globals.css';
 
 /**
  * Adds `js` before paint, then `fonts-active` on the task after the text LCP entry.
- * Applying Anuphan reflows Thai text above a hash target, which leaves the heading
- * under the nav (CI measured ~26–40px). The first hash jump is instant: a smooth
- * fragment scroll on the long page lasts ~1.3s and must not cancel the re-align.
- * A scroll counts as the reader only after real input (wheel, touch, scroll keys,
- * scrollbar pointerdown, Ctrl/Cmd+F) or when it is a scroll this script did not
- * cause after that jump has settled (scrollbar drag, find-in-page, scrollBy).
- * Stop after the post-font align. Dialog and menu call freeze() so they are never re-aligned.
+ * The class is what makes the browser fetch the next/font faces (family names come
+ * from `anuphan.style.fontFamily` on `<html data-font-families>`, not a hard-coded
+ * string). `document.fonts.ready` captured before that class only covers the
+ * fallback, so the re-align stays armed until no face is still `loading`
+ * (including heading faces added later), or 6s. The first hash jump is instant.
+ * A reader scroll is real input, or a move of more than 96px after the jump
+ * settles. The face's own anchoring shift is smaller and is corrected. Dialog
+ * and menu call freeze() so they are never re-aligned.
  */
 const bootScript =
   "document.documentElement.classList.add('js');" +
-  '(function(){var root=document.documentElement,sealed=false,moved=false,fontsDone=false,settled=false,applying=false,trailed=false,own=0;' +
+  '(function(){var root=document.documentElement,sealed=false,moved=false,fontsDone=false,settled=false,applying=false,trailed=false,own=0,yAtSettle=0;' +
   'if(location.hash)root.style.scrollBehavior="auto";' +
   'function seal(){if(sealed)return;sealed=true;removeEventListener("scroll",onScroll);' +
-  'if(document.fonts)document.fonts.removeEventListener("loadingdone",kick);removeEventListener("load",kick);}' +
+  'if(document.fonts){document.fonts.removeEventListener("loadingdone",onFont);document.fonts.removeEventListener("loading",onFont);}' +
+  'removeEventListener("load",kick);}' +
   'function mark(){moved=true;}' +
-  'function onScroll(){if(sealed||own>0||!settled)return;moved=true;}' +
+  'function onScroll(){if(sealed||own>0||!settled)return;var y=window.scrollY||window.pageYOffset||0;if(Math.abs(y-yAtSettle)>96)moved=true;}' +
   'function programmatic(fn){own++;try{fn();}finally{requestAnimationFrame(function(){own=Math.max(0,own-1);});}}' +
   'function jump(el){var prev=root.style.scrollBehavior;root.style.scrollBehavior="auto";el.scrollIntoView({block:"start"});root.style.scrollBehavior=prev;}' +
-  'function align(){if(sealed)return;if(moved){seal();return;}var id=location.hash.slice(1);if(!id){seal();return;}' +
+  'function align(){if(sealed)return;if(moved){seal();return;}var id=location.hash.slice(1);if(!id){if(fontsDone)seal();return;}' +
   'var el=document.getElementById(id);if(!el)return;programmatic(function(){jump(el);});' +
   'if(fontsDone&&!trailed){trailed=true;requestAnimationFrame(function(){requestAnimationFrame(function(){if(sealed)return;if(moved){seal();return;}' +
   'var again=document.getElementById(id);if(again)programmatic(function(){jump(again);});seal();});});}}' +
-  'function kick(){if(sealed)return;requestAnimationFrame(function(){requestAnimationFrame(align);});}' +
-  'function settle(){if(settled)return;settled=true;if(root.style.scrollBehavior==="auto")root.style.scrollBehavior="";}' +
+  'function kick(){if(sealed||fontsDone)return;requestAnimationFrame(function(){requestAnimationFrame(align);});}' +
+  'function onFont(){kick();}' +
+  'function settle(){if(settled)return;settled=true;yAtSettle=window.scrollY||window.pageYOffset||0;if(root.style.scrollBehavior==="auto")root.style.scrollBehavior="";}' +
   'function watch(){var id=location.hash.slice(1);if(!id){settle();return;}var last=-1,stable=0,n=0;' +
   '(function tick(){if(settled||sealed)return;var el=document.getElementById(id),y=window.scrollY,top=el?el.getBoundingClientRect().top:1e9;' +
   'var landed=!!el&&y===last&&(y>0||top<window.innerHeight);if(landed)stable++;else stable=0;last=y;n++;' +
   'if((el&&stable>=2)||n>120)settle();else requestAnimationFrame(tick);})();}' +
-  'function apply(){if(applying||(fontsDone&&root.classList.contains("fonts-active")))return;applying=true;' +
-  'var ready=document.fonts?document.fonts.ready:Promise.resolve();ready.then(function(){own++;root.classList.add("fonts-active");fontsDone=true;' +
-  'if(!sealed)align();requestAnimationFrame(function(){requestAnimationFrame(function(){own=Math.max(0,own-1);});});});}' +
+  'function families(){var raw=root.getAttribute("data-font-families")||"",out=[],cur="",q="",i,c;for(i=0;i<raw.length;i++){c=raw.charAt(i);' +
+  'if(q){if(c===q)q="";else cur+=c;}else if(c==="\\""||c==="\'")q=c;else if(c===","){if(cur.trim())out.push(cur.trim());cur="";}else cur+=c;}' +
+  'if(cur.trim())out.push(cur.trim());return out;}' +
+  'function loadingCount(){var n=0;if(!document.fonts||!document.fonts.forEach)return 0;document.fonts.forEach(function(face){if(face.status==="loading")n++;});return n;}' +
+  'function requestFamilies(names){if(!document.fonts||!document.fonts.load)return;for(var i=0;i<names.length;i++){document.fonts.load("1em \\""+names[i].replace(/"/g,"")+"\\"").catch(function(){});}}' +
+  'function finishFonts(){if(fontsDone||sealed)return;fontsDone=true;align();}' +
+  'function armFonts(){var names=families(),started=Date.now(),saw=false,quiet=0;function sample(){if(fontsDone||sealed)return;var n=loadingCount();' +
+  'if(n>0){saw=true;quiet=0;}else if(saw){quiet++;if(quiet>=2){finishFonts();return;}}else if(Date.now()-started>=250){finishFonts();return;}' +
+  'requestAnimationFrame(sample);}requestAnimationFrame(function(){requestFamilies(names);requestAnimationFrame(sample);});setTimeout(finishFonts,6000);}' +
+  'function apply(){if(applying)return;applying=true;own++;root.classList.add("fonts-active");' +
+  'requestAnimationFrame(function(){requestAnimationFrame(function(){own=Math.max(0,own-1);});});armFonts();}' +
   'addEventListener("scroll",onScroll,{passive:true});' +
   'addEventListener("wheel",function(){mark();},{passive:true,once:true});' +
   'addEventListener("touchstart",function(){mark();},{passive:true,once:true});' +
@@ -51,7 +62,7 @@ const bootScript =
   'addEventListener("keydown",onKey);' +
   'addEventListener("pointerdown",function(e){var t=e.target;if(t===root||t===document.body||e.clientX>=root.clientWidth||e.clientY>=root.clientHeight)mark();},{passive:true});' +
   'if(document.readyState==="loading")addEventListener("DOMContentLoaded",watch);else watch();' +
-  'if(document.fonts)document.fonts.addEventListener("loadingdone",kick);' +
+  'if(document.fonts){document.fonts.addEventListener("loading",onFont);document.fonts.addEventListener("loadingdone",onFont);}' +
   'try{new PerformanceObserver(function(list,obs){if(!list.getEntries().length)return;obs.disconnect();setTimeout(apply,0);}).observe({type:"largest-contentful-paint",buffered:true});}catch(e){}' +
   'setTimeout(apply,4000);addEventListener("load",kick);' +
   'window.__portfolioHashAlign={programmatic:programmatic,freeze:function(){mark();seal();}};})();';
@@ -89,7 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const { locale, m } = await getI18n();
   return (
-    <html lang={locale} className={anuphan.variable} suppressHydrationWarning>
+    <html lang={locale} className={anuphan.variable} data-font-families={anuphan.style.fontFamily} suppressHydrationWarning>
       <head>
         {/* Marks JS availability before paint so JS-only controls never flash (no-JS fallbacks stay usable). */}
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />

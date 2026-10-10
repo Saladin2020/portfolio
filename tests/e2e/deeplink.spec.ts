@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { widthOf } from './helpers';
 
 /**
@@ -23,6 +23,66 @@ const VIEWPORTS = [
 ] as const;
 
 const expectedHeadingTop = (width: number) => (width >= 1030 ? 192 : 148);
+
+/**
+ * Hold every woff2, including the Anuphan subsets next/font emits under a
+ * generated family name. The re-align has to be measured after those
+ * responses arrive: `fonts-active` is applied first, and the face loads after.
+ */
+async function delayWoff2(page: Page, ms: number) {
+  let started = 0;
+  let inflight = 0;
+  // `**/*` is required: a woff2-only pattern never receives these font requests.
+  await page.route('**/*', async (route) => {
+    const url = route.request().url();
+    if (!url.includes('.woff2')) {
+      await route.continue();
+      return;
+    }
+    started += 1;
+    inflight += 1;
+    try {
+      await new Promise((resolve) => setTimeout(resolve, ms));
+      // fetch() does not re-enter this route. continue() was looping on font requests.
+      const response = await route.fetch();
+      await route.fulfill({ response });
+    } finally {
+      inflight -= 1;
+    }
+  });
+  return {
+    started: () => started,
+    inflight: () => inflight,
+  };
+}
+
+/** Resolves once the woff2 requests that started after `since` have loaded. */
+async function waitForDelayedFonts(
+  page: Page,
+  tracker: { started: () => number; inflight: () => number },
+  since: number,
+) {
+  const facesSettled = () =>
+    page.waitForFunction(() => {
+      let loading = false;
+      document.fonts.forEach((face) => {
+        if (face.status === 'loading') loading = true;
+      });
+      return document.documentElement.classList.contains('fonts-active') && !loading;
+    });
+  await expect.poll(() => tracker.started() > since && tracker.inflight() === 0, { timeout: 15_000 }).toBe(true);
+  await facesSettled();
+  // Subsets are requested together; a short quiet catches one that starts late.
+  await page.waitForTimeout(250);
+  await expect.poll(() => tracker.inflight() === 0, { timeout: 15_000 }).toBe(true);
+  await facesSettled();
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      }),
+  );
+}
 
 test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
   test('each nav anchor lands the heading on its designed offset', async ({ page }, testInfo) => {
@@ -65,15 +125,9 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
 
   test('a scripted scroll during font load is not pulled back to the hash', async ({ page }, testInfo) => {
     test.skip(widthOf(testInfo) !== 1440, 'font-load scroll is independent of viewport');
-    const client = await page.context().newCDPSession(page);
-    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
-    // Hold the face until after the scripted scroll. The native fragment
-    // scroll is smooth, so a sample two frames after DOMContentLoaded is
-    // still near the top (preview measured 9px and 39px).
-    await page.route('**/*.woff2', async (route) => {
-      await new Promise((r) => setTimeout(r, 5000));
-      await route.continue();
-    });
+    // Hold the face until after the scripted scroll.
+    const fonts = await delayWoff2(page, 4000);
+    const since = fonts.started();
     try {
       await page.goto('/#about', { waitUntil: 'domcontentloaded' });
       const heading = page.locator('#about-heading');
@@ -95,25 +149,20 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
         return { before, after };
       });
       expect(scrolled.before - scrolled.after).toBeGreaterThan(200);
-      await page.evaluate(() => document.fonts.ready);
-      // Past the post-font align. A late loadingdone used to jump back to the hash.
+      // Past the post-font align, after the stalled face has actually loaded.
       // Font swap can still anchor the viewport by a few dozen pixels; that is not a snap-back.
-      await page.waitForTimeout(800);
+      await waitForDelayedFonts(page, fonts, since);
       const top = await heading.evaluate((el) => Math.round(el.getBoundingClientRect().top));
       expect(top, 'scripted scroll was pulled back to the #about offset').toBeGreaterThan(192 + 120);
     } finally {
-      await client.detach();
+      await page.unrouteAll({ behavior: 'ignoreErrors' });
     }
   });
 
   test('keyboard scrolling during font load is not pulled back to the hash', async ({ page }, testInfo) => {
     test.skip(widthOf(testInfo) !== 1440, 'scroll-key handling is independent of viewport');
-    const client = await page.context().newCDPSession(page);
-    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
-    await page.route('**/*.woff2', async (route) => {
-      await new Promise((r) => setTimeout(r, 4000));
-      await route.continue();
-    });
+    const fonts = await delayWoff2(page, 4000);
+    const since = fonts.started();
     try {
       await page.goto('/#about', { waitUntil: 'domcontentloaded' });
       const heading = page.locator('#about-heading');
@@ -121,23 +170,18 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
         .poll(async () => heading.evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 4_000 })
         .toBeLessThanOrEqual(192 + 80);
       await page.keyboard.press('PageDown');
-      await page.evaluate(() => document.fonts.ready);
-      await page.waitForTimeout(800);
+      await waitForDelayedFonts(page, fonts, since);
       const top = await heading.evaluate((el) => Math.round(el.getBoundingClientRect().top));
       expect(top, 'PageDown was pulled back to the #about offset').toBeLessThan(192 - 80);
     } finally {
-      await client.detach();
+      await page.unrouteAll({ behavior: 'ignoreErrors' });
     }
   });
 
   test('Ctrl+F and a following scroll are not pulled back to the hash', async ({ page }, testInfo) => {
     test.skip(widthOf(testInfo) !== 1440, 'find-in-page handling is independent of viewport');
-    const client = await page.context().newCDPSession(page);
-    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
-    await page.route('**/*.woff2', async (route) => {
-      await new Promise((r) => setTimeout(r, 4000));
-      await route.continue();
-    });
+    const fonts = await delayWoff2(page, 4000);
+    const since = fonts.started();
     try {
       await page.goto('/#about', { waitUntil: 'domcontentloaded' });
       const heading = page.locator('#about-heading');
@@ -154,39 +198,43 @@ test.describe('fresh-load in-page anchors (REG-02, AC-NAV-02)', () => {
         window.scrollTo(0, Math.max(0, window.scrollY - 480));
         root.style.scrollBehavior = prev;
       });
-      await page.evaluate(() => document.fonts.ready);
-      await page.waitForTimeout(800);
+      await waitForDelayedFonts(page, fonts, since);
       const top = await heading.evaluate((el) => Math.round(el.getBoundingClientRect().top));
       expect(top, 'Ctrl+F scroll was pulled back to the #about offset').toBeGreaterThan(192 + 120);
     } finally {
-      await client.detach();
+      await page.unrouteAll({ behavior: 'ignoreErrors' });
     }
   });
 
-  test('a delayed font swap still lands #process, #contact and #work at 360×640', async ({ page }, testInfo) => {
-    test.skip(widthOf(testInfo) !== 1440, 'viewport is set inside this test');
-    test.setTimeout(60_000);
-    await page.setViewportSize({ width: 360, height: 640 });
-    const client = await page.context().newCDPSession(page);
-    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
-    await page.route('**/*.woff2', async (route) => {
-      await new Promise((r) => setTimeout(r, 4000));
-      await route.continue();
-    });
-    try {
+  test('a delayed font swap lands the heading at 360, 768 and 1440', async ({ browser }, testInfo) => {
+    test.skip(widthOf(testInfo) !== 1440, 'viewports are set inside this test');
+    test.setTimeout(120_000);
+    const widths = [
+      { width: 360, height: 640 },
+      { width: 768, height: 900 },
+      { width: 1440, height: 900 },
+    ] as const;
+    for (const viewport of widths) {
+      const expected = expectedHeadingTop(viewport.width);
       for (const id of ['process', 'contact', 'work'] as const) {
-        await page.goto(`/#${id}`, { waitUntil: 'load' });
-        await expect.poll(async () => page.evaluate(() => document.documentElement.classList.contains('fonts-active')), { timeout: 8_000 }).toBe(true);
-        const heading = page.locator(`#${id}-heading`);
-        await expect
-          .poll(async () => heading.evaluate((el) => Math.abs(Math.round(el.getBoundingClientRect().top) - 148)), {
-            message: `#${id} after a 4s font swap should sit at 148px`,
-            timeout: 3_000,
-          })
-          .toBeLessThanOrEqual(4);
+        // A fresh context so the face is not already in the memory cache.
+        const context = await browser.newContext({
+          viewport: { width: viewport.width, height: viewport.height },
+          baseURL: 'http://localhost:3000',
+        });
+        const page = await context.newPage();
+        const fonts = await delayWoff2(page, 3500);
+        const since = fonts.started();
+        try {
+          await page.goto(`/#${id}`, { waitUntil: 'load' });
+          await waitForDelayedFonts(page, fonts, since);
+          const heading = page.locator(`#${id}-heading`);
+          const top = await heading.evaluate((el) => Math.round(el.getBoundingClientRect().top));
+          expect(Math.abs(top - expected), `#${id} @ ${viewport.width} landed at ${top}px, expected ${expected}`).toBeLessThanOrEqual(4);
+        } finally {
+          await context.close();
+        }
       }
-    } finally {
-      await client.detach();
     }
   });
 });
