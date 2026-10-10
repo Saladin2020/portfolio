@@ -6,7 +6,16 @@ import { Chip } from '@/components/ui/Chip';
 import { ExternalLink } from '@/components/ui/ExternalLink';
 import { AVAILABILITY, type Availability } from '@/content/schema';
 
-/** S-6 About: photo (4:5, alt), name · role/city, bio, availability (one value), role chips. */
+/**
+ * Rendered portrait width, so next/image does not offer a wider candidate than the box:
+ * ≥1440 the content column is 502px; ≥1030 is 40% of (100vw − 112px padding − 72px gap);
+ * ≥860 is 40% of (100vw − 40px padding − 32px gap); ≥760 is max-w-copy (720px); else 100vw − 40px.
+ * The source is 600×720, so the optimizer will not emit a wider file than that.
+ */
+const PORTRAIT_SIZES =
+  '(width >= 1440px) 502px, (width >= 1030px) calc((100vw - 184px) * 0.4), (width >= 860px) calc((100vw - 72px) * 0.4), (width >= 760px) 720px, calc(100vw - 40px)';
+
+/** S-6 About: illustration (4:5 box, alt), name · role/city, bio, availability (one value), role chips. */
 export function About({ c, m }: { c: SiteContent; m: Messages }) {
   const p = c.profile;
   const raw = 'availability' in p ? (p.availability as string | undefined) : undefined;
@@ -17,7 +26,7 @@ export function About({ c, m }: { c: SiteContent; m: Messages }) {
         <Image
           src={p.photo}
           alt={p.photoAlt}
-          sizes="(width >= 860px) 40vw, 100vw"
+          sizes={PORTRAIT_SIZES}
           placeholder="blur"
           className="aspect-4/5 h-auto w-full max-w-copy rounded-panel border border-light-border-subtle object-cover"
         />
