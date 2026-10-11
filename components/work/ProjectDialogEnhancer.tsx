@@ -3,6 +3,12 @@
 import { useEffect } from 'react';
 
 const DIALOG_PREFIX = 'project-dialog-';
+const GUARD_FRAMES = 36;
+
+type HashAlign = {
+  programmatic: (fn: () => void) => void;
+  freeze: () => void;
+};
 
 /**
  * Progressive enhancement for project cards (ARCHITECTURE §2.4):
@@ -17,12 +23,17 @@ export function ProjectDialogEnhancer() {
     let openSlug: string | null = null;
     let trigger: HTMLElement | null = null;
     let closingFromHistory = false;
-    // Card to refocus once a hash traversal (back to /#work) has finished moving focus.
+    // Card to refocus after a hash traversal focuses <body>. The traversal also
+    // scrolls to the fragment; returnScroll is the viewport from before open.
     let pendingEl: HTMLElement | null = null;
+    let returnScroll: number | null = null;
+    // Captured in the click turn, before the dialog chunk import can yield.
+    let queuedScroll = 0;
     let focusToken = 0;
     const wired = new WeakSet<HTMLDialogElement>();
     const opening = new Set<string>();
 
+    const hashAlign = () => (window as unknown as { __portfolioHashAlign?: HashAlign }).__portfolioHashAlign;
     const dialogFor = (slug: string) => document.getElementById(DIALOG_PREFIX + slug) as HTMLDialogElement | null;
     type Hist = { __NA?: boolean; portfolioProject?: string };
     // App Router history entry for this document, without a dialog slug.
@@ -37,11 +48,39 @@ export function ProjectDialogEnhancer() {
       delete rest.portfolioProject;
       pageState = rest;
     };
+    const scrollToY = (y: number) => {
+      const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const top = Math.max(0, Math.min(y, max));
+      if (Math.abs(window.scrollY - top) <= 1) return;
+      const go = () => {
+        const root = document.documentElement;
+        const prev = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        window.scrollTo(0, top);
+        root.style.scrollBehavior = prev;
+      };
+      const api = hashAlign();
+      if (api) api.programmatic(go);
+      else go();
+    };
     const restoreRouterState = () => {
       snapshotPageState();
       const s = window.history.state as Hist | null;
-      if (s?.__NA || !pageState) return;
       const { pathname, search, hash } = window.location;
+      // Closing back onto /#work. replaceState during popstate cancels the
+      // fragment scroll that would focus <body> and jump to the hash target.
+      // Put the viewport back where it was when the dialog opened.
+      if (hash && pendingEl) {
+        const next = (s?.__NA ? s : pageState) ?? s;
+        const root = document.documentElement;
+        const prev = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        if (next) window.history.replaceState(next, '', pathname + search + hash);
+        if (returnScroll != null) window.scrollTo(0, returnScroll);
+        root.style.scrollBehavior = prev;
+        return;
+      }
+      if (s?.__NA || !pageState) return;
       const root = document.documentElement;
       const prev = root.style.scrollBehavior;
       // replaceState during this popstate cancels the browser's fragment scroll.
@@ -57,20 +96,55 @@ export function ProjectDialogEnhancer() {
       return s?.portfolioProject ?? null;
     };
 
-    // Esc / ✕ call history.back(). When the page underneath is /#work, that hash
-    // traversal focuses <body> after the close task. Restore the card on the
-    // following frame, and again from popstate/hashchange if the traversal lands later.
+    // Esc / ✕ / Back land on /#work. Focus the card with preventScroll and
+    // keep putting the saved scroll position back for the frames after
+    // popstate, so a late fragment scroll cannot win.
+    const placeCard = (token: number) => {
+      const el = pendingEl;
+      if (!el || token !== focusToken || openSlug) return;
+      if (returnScroll != null) scrollToY(returnScroll);
+      if (document.activeElement === el) return;
+      const active = document.activeElement;
+      if (
+        active instanceof Element &&
+        active !== document.body &&
+        active !== document.documentElement &&
+        !active.closest('dialog')
+      ) {
+        pendingEl = null;
+        return;
+      }
+      el.focus({ preventScroll: true });
+    };
+
     const focusWhenSettled = (el: HTMLElement | null) => {
       if (!el) return;
       pendingEl = el;
       const token = ++focusToken;
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (token !== focusToken || openSlug) return;
-          el.focus();
-          if (document.activeElement === el) pendingEl = null;
-        });
-      });
+      let frame = 0;
+      const step = () => {
+        if (token !== focusToken || !pendingEl) return;
+        frame += 1;
+        placeCard(token);
+        if (!pendingEl || token !== focusToken) return;
+        if (frame >= GUARD_FRAMES) {
+          pendingEl = null;
+          return;
+        }
+        requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    const onFocusIn = () => {
+      if (!pendingEl || openSlug) return;
+      const token = focusToken;
+      requestAnimationFrame(() => placeCard(token));
+    };
+
+    const onScroll = () => {
+      if (!pendingEl || returnScroll == null || openSlug) return;
+      scrollToY(returnScroll);
     };
 
     const onClose = (e: Event) => {
@@ -110,6 +184,11 @@ export function ProjectDialogEnhancer() {
         if (!dialog || dialog.open) return false;
         wire(dialog);
         trigger = from;
+        pendingEl = null;
+        focusToken += 1;
+        // A later font re-align must not scroll this page out from under the dialog.
+        hashAlign()?.freeze();
+        if (push) returnScroll = queuedScroll;
         openSlug = slug;
         dialog.showModal();
         dialog.querySelector<HTMLElement>(`#${CSS.escape(`dialog-${slug}-title`)}`)?.focus();
@@ -131,6 +210,7 @@ export function ProjectDialogEnhancer() {
       if (!slug) return;
       // Synchronous: the browser must not follow the href while the dialog chunk loads.
       e.preventDefault();
+      queuedScroll = window.scrollY;
       void open(slug, link, true).then(
         (opened) => {
           if (!opened && !dialogFor(slug)?.open) window.location.assign(link.href);
@@ -140,8 +220,13 @@ export function ProjectDialogEnhancer() {
     };
 
     const onPop = () => {
-      restoreRouterState();
       const slug = stateSlug();
+      // Back: arm the card before restoreRouterState so the fragment scroll
+      // is cancelled and the saved scroll position is what sticks.
+      if (openSlug && slug !== openSlug) {
+        pendingEl = trigger ?? document.querySelector<HTMLElement>(`a[data-project-link="${CSS.escape(openSlug)}"]`);
+      }
+      restoreRouterState();
       if (openSlug && slug !== openSlug) {
         closingFromHistory = true;
         dialogFor(openSlug)?.close();
@@ -157,10 +242,14 @@ export function ProjectDialogEnhancer() {
     };
 
     document.addEventListener('click', onClick);
+    document.addEventListener('focusin', onFocusIn);
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('popstate', onPop);
     window.addEventListener('hashchange', onPop);
     return () => {
       document.removeEventListener('click', onClick);
+      document.removeEventListener('focusin', onFocusIn);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('popstate', onPop);
       window.removeEventListener('hashchange', onPop);
     };
