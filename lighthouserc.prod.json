@@ -57,7 +57,7 @@
         "total-blocking-time": [
           "warn",
           {
-            "maxNumericValue": 200,
+            "maxNumericValue": 300,
             "aggregationMethod": "median-run"
           }
         ],

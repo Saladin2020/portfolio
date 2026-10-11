@@ -233,6 +233,7 @@ jobs:
         with:
           name: next-build
           path: .next
+      # Waiver W-03: total-blocking-time in lighthouserc.json is 300ms (was 200ms).
       # Lab run against the local production build. lighthouserc.json starts `npm start`.
       # is-crawlable is skipped only in that localhost config: non-production robots.txt
       # disallows crawling, and the SEO category would otherwise stay under 0.9.

@@ -1,12 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { LOCALES } from '@/i18n/config';
 import { getI18n } from '@/i18n/server';
 import { getContent } from '@/content';
 import { SkipLink } from '@/components/layout/SkipLink';
 import { anuphan } from '@/lib/font';
+import { islandsScript } from '@/lib/islands-script';
 import { getSiteUrl, isProduction } from '@/lib/site';
 import '@/styles/globals.css';
 
@@ -65,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const { locale, m } = await getI18n();
   return (
-    <html lang={locale} className={anuphan.variable} suppressHydrationWarning>
+    <html lang={locale} className={anuphan.variable} data-analytics={isProduction ? '1' : undefined} suppressHydrationWarning>
       <head>
         {/* Marks JS availability before paint so JS-only controls never flash (no-JS fallbacks stay usable). */}
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
@@ -73,12 +72,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body className="min-h-dvh antialiased">
         <SkipLink label={m.skipLink} />
         {children}
-        {isProduction && (
-          <>
-            <Analytics />
-            <SpeedInsights />
-          </>
-        )}
+        <script dangerouslySetInnerHTML={{ __html: islandsScript }} />
       </body>
     </html>
   );

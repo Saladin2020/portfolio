@@ -1,5 +1,6 @@
 # Weekly Lighthouse lab run against PRODUCTION (DEVOPS-004).
 # * Production is public (Standard Protection leaves production domains open), so no secrets are used.
+# * Waiver W-03: total-blocking-time in lighthouserc.prod.json is 300ms (was 200ms).
 # * lighthouserc.prod.json keeps the same budgets as lighthouserc.json but does NOT skip
 #   `is-crawlable`: production must be indexable (robots.txt allow + no noindex).
 # * Target: repo variable PROD_URL if set (e.g. after a custom domain is added), otherwise the

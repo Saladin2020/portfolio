@@ -1,8 +1,8 @@
-import { CheckCircle2 } from 'lucide-react';
 import type { SiteContent } from '@/content';
 import type { Messages } from '@/messages/th';
 import { Section } from '@/components/layout/Section';
 import { cx } from '@/components/ui/cx';
+import { CheckCircleIcon } from '@/components/ui/icons';
 
 /** S-4 How I work (dark scene): 5 ordered steps (AC-PROC-01/03), quality callouts (AC-PROC-02). */
 export function Process({ c, m }: { c: SiteContent; m: Messages }) {
@@ -31,7 +31,7 @@ export function Process({ c, m }: { c: SiteContent; m: Messages }) {
               {step.description && <p className="text-dark-text-secondary">{step.description}</p>}
               {'qualityNote' in step && step.qualityNote && (
                 <p className="mt-1 flex items-start gap-1-5 rounded-container border border-dark-surface bg-dark-surface p-3 text-dark-text-primary">
-                  <CheckCircle2 aria-hidden="true" className="mt-0-5 size-3 shrink-0 text-dark-text-link" />
+                  <CheckCircleIcon className="mt-0-5 size-3 shrink-0 text-dark-text-link" />
                   <span>
                     <span className="font-semibold">{m.process.quality}: </span>
                     {step.qualityNote}
