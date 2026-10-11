@@ -16,7 +16,7 @@ export const profileText = {
   ],
   bio: 'นักพัฒนาที่สร้างผลงานทั้ง 4 ชิ้นในหน้านี้คนเดียว โดยทำงานร่วมกับ AI agents (Cursor / Claude) ทุกโปรเจกต์ใช้ Next.js, React, TypeScript และ Tailwind CSS ใช้ฐานข้อมูล Neon Postgres และ deploy ใช้งานจริงบน Vercel',
   jobTitle: 'AI-native builder',
-  photoAlt: 'รูปถ่ายของซอลาฮุดดีน เบนโน สวมแว่นกรอบกลมและเสื้อเชิ้ตสีกรมท่า',
+  photoAlt: 'ภาพประกอบสไตล์การ์ตูนของซอลาฮุดดีน เบนโน',
   availabilityLabel: {
     freelance: 'รับงานฟรีแลนซ์',
     'full-time': 'เปิดรับงานประจำ',

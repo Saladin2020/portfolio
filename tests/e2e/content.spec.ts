@@ -34,10 +34,10 @@ test.describe('real content', () => {
     }
   });
 
-  test('portrait uses the PO photo via next/image with Thai alt text', async ({ page }) => {
+  test('portrait uses the illustrated portrait via next/image with the approved Thai alt', async ({ page }) => {
     await page.goto('/');
     const img = page.locator('#about img');
-    await expect(img).toHaveAttribute('alt', /ซอลาฮุดดีน เบนโน/);
+    await expect(img).toHaveAttribute('alt', 'ภาพประกอบสไตล์การ์ตูนของซอลาฮุดดีน เบนโน');
     await expect(img).toHaveAttribute('src', /\/_next\/image\?url=.*photo/);
   });
 
